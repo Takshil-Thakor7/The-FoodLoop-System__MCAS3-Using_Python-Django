@@ -1,0 +1,809 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Customer Dashboard – FoodLoop</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230288D1' stroke-width='2'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z'/><path d='M8 14s1.5 2 4 2 4-2 4-2'/></svg>" />
+  <style>
+    body { background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; }
+    .dash-header { background: #0f1923; color: #fff; position: sticky; top: 0; z-index: 500; box-shadow: 0 4px 20px rgba(0,0,0,.15); border-bottom: 1px solid #1e2d3d; }
+    .header-top { max-width: 1400px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .brand-section { display: flex; align-items: center; gap: 12px; }
+    .brand-logo { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg,#0288D1,#29B6F6); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(2,136,209,.35); color: #fff; }
+    .brand-logo svg { width: 20px; height: 20px; }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-text .title { color: #f8fafc; font-size: 1.1rem; font-weight: 800; letter-spacing: .3px; }
+    .brand-text .subtitle { color: #64748b; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .header-btn { width: 38px; height: 38px; border-radius: 9px; background: #1a2840; border: 1px solid #1e2d3d; color: #94a3b8; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: all .2s; }
+    .header-btn:hover { background: #24344d; color: #f8fafc; }
+    .header-btn svg { width: 18px; height: 18px; }
+    .notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: #ef4444; border: 1.5px solid #0f1923; border-radius: 50%; }
+    .user-profile-pill { display: flex; align-items: center; gap: 10px; padding: 5px 12px 5px 6px; background: #1a2840; border: 1px solid #1e2d3d; border-radius: 30px; cursor: pointer; transition: all .2s; }
+    .user-profile-pill:hover { background: #24344d; }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#0288D1,#29B6F6); display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 800; color: #fff; }
+    .user-details { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
+    .user-details .user-name { font-size: .85rem; font-weight: 700; color: #f1f5f9; }
+    .user-details .user-role { font-size: .65rem; font-weight: 600; color: #38bdf8; text-transform: uppercase; }
+    .header-nav { max-width: 1400px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .header-nav::-webkit-scrollbar { display: none; }
+    .nav-item { display: flex; align-items: center; gap: 8px; padding: 12px 16px; color: #94a3b8; font-size: .88rem; font-weight: 600; white-space: nowrap; border-bottom: 2px solid transparent; transition: all .2s; cursor: pointer; }
+    .nav-item-icon svg { width: 17px; height: 17px; color: #64748b; transition: color .2s; }
+    .nav-item:hover { color: #f1f5f9; }
+    .nav-item:hover .nav-item-icon svg { color: #94a3b8; }
+    .nav-item.active { color: #38bdf8; border-bottom-color: #38bdf8; background: rgba(56,189,248,.05); }
+    .nav-item.active .nav-item-icon svg { color: #38bdf8; }
+    .nav-badge { font-size: .68rem; padding: 2px 7px; border-radius: 10px; background: #0288D1; color: #fff; font-weight: 700; }
+    .page-subheader { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; box-shadow: 0 1px 3px rgba(0,0,0,.03); }
+    .subheader-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .subheader-title h1 { font-size: 1.25rem; font-weight: 800; color: #0f172a; }
+    .subheader-title p { font-size: .82rem; color: #64748b; margin-top: 2px; }
+    .dash-container { max-width: 1400px; width: 100%; margin: 0 auto; padding: 24px; flex: 1; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 24px; }
+    .stat-card { background: #fff; border-radius: 14px; padding: 20px; display: flex; align-items: flex-start; gap: 16px; border: 1px solid #e9f0e9; box-shadow: 0 1px 4px rgba(0,0,0,.05); transition: box-shadow .2s, transform .2s; }
+    .stat-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateY(-2px); }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stat-icon svg { width: 24px; height: 24px; }
+    .bg-primary-soft { background: rgba(46,125,50,.1); } .bg-primary-soft svg { color: #2E7D32; }
+    .bg-success-soft { background: rgba(56,142,60,.1); } .bg-success-soft svg { color: #388E3C; }
+    .bg-info-soft { background: rgba(2,136,209,.1); } .bg-info-soft svg { color: #0288D1; }
+    .bg-warning-soft { background: rgba(249,168,37,.12); } .bg-warning-soft svg { color: #F9A825; }
+    .stat-info .value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+    .stat-info .label { font-size: .8rem; color: #64748b; font-weight: 500; margin-top: 2px; }
+    .stat-info .change { font-size: .75rem; margin-top: 6px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .change.up { color: #16a34a; }
+    .dash-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .panel { background: #fff; border-radius: 14px; border: 1px solid #e9f0e9; box-shadow: 0 1px 4px rgba(0,0,0,.05); overflow: hidden; margin-bottom: 20px; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px 14px; border-bottom: 1px solid #f1f5f9; }
+    .panel-header h3 { font-size: .95rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+    .panel-header h3 svg { width: 18px; height: 18px; color: #64748b; }
+    .panel-body { padding: 22px; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+    .badge svg { width: 12px; height: 12px; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-info { background: #dbeafe; color: #1d4ed8; }
+    .badge-warning { background: #fef9c3; color: #854d0e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-neutral { background: #f1f5f9; color: #475569; }
+    @media(max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body>
+  <!-- HORIZONTAL HEADER -->
+  <header class="dash-header">
+    <div class="header-top">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <div class="brand-text">
+          <span class="title">FoodLoop</span>
+          <span class="subtitle">Customer Portal</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="header-btn" onclick="showSection('notifications', this); return false;" title="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+        <button class="header-btn" onclick="window.location.href='index.html'" title="Back to Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
+        <div class="user-profile-pill" onclick="showSection('profile', this); return false;">
+          <div class="user-avatar">MK</div>
+          <div class="user-details">
+            <span class="user-name">Mehul Kumar</span>
+            <span class="user-role">Customer</span>
+          </div>
+        </div>
+        <button class="header-btn" onclick="window.location.href='login.html'" title="Sign Out">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- HORIZONTAL NAV -->
+    <nav class="header-nav">
+      <a href="#" class="nav-item active" onclick="showSection('dashboard', this); return false;">
+        <span class="nav-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+        <span>Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('browse', this); return false;">
+        <span class="nav-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <span>Browse Food</span>
+        <span class="nav-badge">6</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('orders', this); return false;">
+        <span class="nav-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+        <span>My Orders</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('history', this); return false;">
+        <span class="nav-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        <span>Order History</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('profile', this); return false;">
+        <span class="nav-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        <span>My Profile</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSection('notifications', this); return false;">
+        <span class="nav-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+        <span>Notifications</span>
+        <span class="nav-badge">3</span>
+      </a>
+    </nav>
+  </header>
+
+  <!-- SUBHEADER -->
+  <div class="page-subheader">
+    <div class="subheader-inner">
+      <div class="subheader-title">
+        <h1 id="pageTitle">Customer Dashboard</h1>
+        <p>Welcome back, Mehul Kumar · Browse discounted surplus food and track deliveries</p>
+      </div>
+      <div>
+        <button class="btn btn-primary btn-sm" onclick="showSection('browse', null)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Browse Surplus Food
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main class="dash-container">
+
+        <!-- DASHBOARD HOME -->
+        <div id="sec-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon bg-info-soft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              </div>
+              <div class="stat-info">
+                <div class="value" style="color:var(--info)">14</div>
+                <div class="label">Total Orders</div>
+                <div class="change up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> 2 this month</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-success-soft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="stat-info">
+                <div class="value" style="color:var(--success)">12</div>
+                <div class="label">Delivered</div>
+                <div class="change up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> 86% success</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-warning-soft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="stat-info">
+                <div class="value" style="color:var(--warning)">1</div>
+                <div class="label">Pending</div>
+                <div class="change">Active now</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-primary-soft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+              <div class="stat-info">
+                <div class="value" style="color:var(--primary)">18<span style="font-size:1rem">kg</span></div>
+                <div class="label">Food Saved</div>
+                <div class="change up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> Community Impact</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-grid">
+            <!-- Browse Available Food -->
+            <div class="panel">
+              <div class="panel-header">
+                <h3 style="display:flex;align-items:center;gap:8px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                  Food Available Near You
+                </h3>
+                <span style="font-size:.82rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  Ahmedabad
+                </span>
+              </div>
+              <div class="panel-body">
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                  <!-- Food Item Card -->
+                  <div
+                    style="display:flex;gap:14px;padding:16px;background:var(--bg);border-radius:14px;border:1px solid var(--border);align-items:center;">
+                    <div
+                      style="width:52px;height:52px;background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7 8V4"/><path d="M12 8V3"/><path d="M17 8V5"/></svg>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-weight:700;font-size:.95rem;">Dal Makhani + Rice</div>
+                      <div style="font-size:.8rem;color:var(--text-muted);">Hotel Rajmahal · 2.3 km · 15 kg</div>
+                      <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
+                        <span class="card-badge available">Available</span>
+                        <span style="font-size:.75rem;color:var(--warning);font-weight:600;display:inline-flex;align-items:center;gap:3px;">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          4 hrs left
+                        </span>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="orderFood('Dal Makhani + Rice')">Order</button>
+                  </div>
+                  <div
+                    style="display:flex;gap:14px;padding:16px;background:var(--bg);border-radius:14px;border:1px solid var(--border);align-items:center;">
+                    <div
+                      style="width:52px;height:52px;background:linear-gradient(135deg,#FF6F00,#FFA000);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-weight:700;font-size:.95rem;">Bread Rolls (50 pcs)</div>
+                      <div style="font-size:.8rem;color:var(--text-muted);">Modern Bakery · 1.1 km · 5 kg</div>
+                      <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
+                        <span class="card-badge available">Available</span>
+                        <span style="font-size:.75rem;color:var(--success);font-weight:600;display:inline-flex;align-items:center;gap:3px;">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          6 hrs left
+                        </span>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="orderFood('Bread Rolls')">Order</button>
+                  </div>
+                  <div
+                    style="display:flex;gap:14px;padding:16px;background:var(--bg);border-radius:14px;border:1px solid var(--border);align-items:center;">
+                    <div
+                      style="width:52px;height:52px;background:linear-gradient(135deg,#0288D1,#29B6F6);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7 8V4"/><path d="M12 8V3"/><path d="M17 8V5"/></svg>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-weight:700;font-size:.95rem;">Veg Pulao (10 kg)</div>
+                      <div style="font-size:.8rem;color:var(--text-muted);">Café Lotus · 3.5 km · 10 kg</div>
+                      <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
+                        <span class="card-badge available">Available</span>
+                        <span style="font-size:.75rem;color:var(--success);font-weight:600;display:inline-flex;align-items:center;gap:3px;">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          5 hrs left
+                        </span>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="orderFood('Veg Pulao')">Order</button>
+                  </div>
+                  <a href="#" onclick="showSection('browse', null); return false;"
+                    style="text-align:center;display:block;font-size:.88rem;color:var(--primary);font-weight:600;padding-top:4px;">View
+                    all available food →</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div style="display:flex;flex-direction:column;gap:24px;">
+              <!-- Active Order -->
+              <div class="panel">
+                <div class="panel-header">
+                  <h3 style="display:flex;align-items:center;gap:8px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Active Order
+                  </h3>
+                  <span class="badge badge-warning">In Progress</span>
+                </div>
+                <div class="panel-body">
+                  <div style="text-align:center;padding:8px 0;">
+                    <div style="width:54px;height:54px;margin:0 auto 12px;background:var(--warning-soft);color:var(--warning);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                    </div>
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:4px;">Paneer Butter Masala</div>
+                    <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:16px;">8 kg · Hotel Rajmahal</div>
+                    <!-- Progress Steps -->
+                    <div style="display:flex;align-items:center;gap:0;margin-bottom:16px;">
+                      <div style="text-align:center;flex:1;">
+                        <div
+                          style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div style="font-size:.7rem;color:var(--primary);font-weight:600;">Ordered</div>
+                      </div>
+                      <div style="flex:1;height:2px;background:var(--primary);"></div>
+                      <div style="text-align:center;flex:1;">
+                        <div
+                          style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div style="font-size:.7rem;color:var(--primary);font-weight:600;">Approved</div>
+                      </div>
+                      <div style="flex:1;height:2px;background:var(--warning);"></div>
+                      <div style="text-align:center;flex:1;">
+                        <div
+                          style="width:28px;height:28px;border-radius:50%;background:var(--warning);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                        </div>
+                        <div style="font-size:.7rem;color:var(--warning);font-weight:600;">Pickup</div>
+                      </div>
+                      <div style="flex:1;height:2px;background:var(--border);"></div>
+                      <div style="text-align:center;flex:1;">
+                        <div
+                          style="width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--text-muted);display:flex;align-items:center;justify-content:center;margin:0 auto 4px;">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        </div>
+                        <div style="font-size:.7rem;color:var(--text-muted);">Delivered</div>
+                      </div>
+                    </div>
+                    <div
+                      style="background:var(--bg);border-radius:10px;padding:12px;font-size:.82rem;color:var(--text-muted);display:flex;align-items:center;justify-content:center;gap:6px;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      Volunteer Ravi Shah is picking up your order. Estimated delivery: <strong style="margin-left:4px;">~45 minutes</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notifications -->
+              <div class="panel">
+                <div class="panel-header">
+                  <h3 style="display:flex;align-items:center;gap:8px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    Alerts
+                  </h3>
+                </div>
+                <div class="panel-body">
+                  <div class="notif-list">
+                    <div class="notif-item unread">
+                      <div class="notif-icon bg-warning-soft">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" width="18" height="18"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                      </div>
+                      <div class="notif-text">
+                        <div class="title">Volunteer picked up your order</div>
+                        <div class="time">10 min ago</div>
+                      </div>
+                    </div>
+                    <div class="notif-item unread">
+                      <div class="notif-icon bg-primary-soft">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                      <div class="notif-text">
+                        <div class="title">Order approved by Hotel Rajmahal</div>
+                        <div class="time">30 min ago</div>
+                      </div>
+                    </div>
+                    <div class="notif-item">
+                      <div class="notif-icon bg-info-soft">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="2" width="18" height="18"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                      </div>
+                      <div class="notif-text">
+                        <div class="title">New food added near you: Veg Biryani</div>
+                        <div class="time">1 hr ago</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BROWSE FOOD -->
+        <div id="sec-browse" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3 style="display:flex;align-items:center;gap:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Browse Available Food
+              </h3>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <select
+                  style="padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:.85rem;background:var(--bg);">
+                  <option>All Categories</option>
+                  <option>Cooked Meals</option>
+                  <option>Bakery</option>
+                  <option>Raw Vegetables</option>
+                  <option>Dairy</option>
+                </select>
+                <select
+                  style="padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:.85rem;background:var(--bg);">
+                  <option>All Destinations</option>
+                  <option>Sell</option>
+                  <option>Donate/Distribute</option>
+                </select>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;">
+                <!-- Food Cards -->
+                <div
+                  style="border:1px solid var(--border);border-radius:16px;overflow:hidden;background:#fff;transition:var(--transition);"
+                  onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow-md)'"
+                  onmouseout="this.style.transform='';this.style.boxShadow=''">
+                  <div
+                    style="background:linear-gradient(135deg,var(--primary),var(--primary-light));height:80px;display:flex;align-items:center;justify-content:center;color:#fff;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36"><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7 8V4"/><path d="M12 8V3"/><path d="M17 8V5"/></svg>
+                  </div>
+                  <div style="padding:16px;">
+                    <div style="font-weight:700;margin-bottom:4px;">Dal Makhani + Rice</div>
+                    <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:4px;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                      Hotel Rajmahal · 2.3 km
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                      <span style="font-size:.82rem;"><strong>15 kg</strong> available</span>
+                      <span style="font-size:.78rem;color:var(--warning);display:inline-flex;align-items:center;gap:3px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        4 hrs left
+                      </span>
+                    </div>
+                    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+                      <span class="badge badge-info">DONATE</span>
+                      <span class="badge badge-success">Eligible</span>
+                    </div>
+                    <button class="btn btn-primary btn-block btn-sm" onclick="orderFood('Dal Makhani + Rice')">Request This Food</button>
+                  </div>
+                </div>
+                <div
+                  style="border:1px solid var(--border);border-radius:16px;overflow:hidden;background:#fff;transition:var(--transition);"
+                  onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow-md)'"
+                  onmouseout="this.style.transform='';this.style.boxShadow=''">
+                  <div
+                    style="background:linear-gradient(135deg,#FF6F00,#FFA000);height:80px;display:flex;align-items:center;justify-content:center;color:#fff;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  </div>
+                  <div style="padding:16px;">
+                    <div style="font-weight:700;margin-bottom:4px;">Bread Rolls (50 pcs)</div>
+                    <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:4px;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                      Modern Bakery · 1.1 km
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                      <span style="font-size:.82rem;"><strong>5 kg</strong> available</span>
+                      <span style="font-size:.78rem;color:var(--success);display:inline-flex;align-items:center;gap:3px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        6 hrs left
+                      </span>
+                    </div>
+                    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+                      <span class="badge badge-warning">SELL</span>
+                      <span class="badge badge-success">Eligible</span>
+                    </div>
+                    <button class="btn btn-primary btn-block btn-sm" onclick="orderFood('Bread Rolls')">Request This Food</button>
+                  </div>
+                </div>
+                <div
+                  style="border:1px solid var(--border);border-radius:16px;overflow:hidden;background:#fff;transition:var(--transition);"
+                  onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow-md)'"
+                  onmouseout="this.style.transform='';this.style.boxShadow=''">
+                  <div
+                    style="background:linear-gradient(135deg,#0288D1,#29B6F6);height:80px;display:flex;align-items:center;justify-content:center;color:#fff;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                  </div>
+                  <div style="padding:16px;">
+                    <div style="font-weight:700;margin-bottom:4px;">Veg Pulao</div>
+                    <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:4px;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                      Café Lotus · 3.5 km
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                      <span style="font-size:.82rem;"><strong>10 kg</strong> available</span>
+                      <span style="font-size:.78rem;color:var(--success);display:inline-flex;align-items:center;gap:3px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        5 hrs left
+                      </span>
+                    </div>
+                    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+                      <span class="badge badge-neutral">DISTRIBUTE</span>
+                      <span class="badge badge-success">Eligible</span>
+                    </div>
+                    <button class="btn btn-primary btn-block btn-sm" onclick="orderFood('Veg Pulao')">Request This Food</button>
+                  </div>
+                </div>
+                <div
+                  style="border:1px solid var(--border);border-radius:16px;overflow:hidden;background:#fff;transition:var(--transition);"
+                  onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow-md)'"
+                  onmouseout="this.style.transform='';this.style.boxShadow=''">
+                  <div
+                    style="background:linear-gradient(135deg,#388E3C,#66BB6A);height:80px;display:flex;align-items:center;justify-content:center;color:#fff;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="36" height="36"><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7 8V4"/><path d="M12 8V3"/><path d="M17 8V5"/></svg>
+                  </div>
+                  <div style="padding:16px;">
+                    <div style="font-weight:700;margin-bottom:4px;">Mixed Vegetable Curry</div>
+                    <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:4px;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                      Shreeji Caterers · 4.8 km
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                      <span style="font-size:.82rem;"><strong>25 kg</strong> available</span>
+                      <span style="font-size:.78rem;color:var(--success);display:inline-flex;align-items:center;gap:3px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        7 hrs left
+                      </span>
+                    </div>
+                    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+                      <span class="badge badge-info">DONATE</span>
+                      <span class="badge badge-success">Eligible</span>
+                    </div>
+                    <button class="btn btn-primary btn-block btn-sm" onclick="orderFood('Mixed Vegetable Curry')">Request This Food</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MY ORDERS -->
+        <div id="sec-orders" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3 style="display:flex;align-items:center;gap:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                My Orders
+              </h3>
+              <span class="badge badge-warning">1 Active</span>
+            </div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Food Item</th>
+                      <th>Provider</th>
+                      <th>Qty</th>
+                      <th>Type</th>
+                      <th>Ordered At</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>#R001</td>
+                      <td class="food-name">Paneer Butter Masala</td>
+                      <td>Hotel Rajmahal</td>
+                      <td>8 kg</td>
+                      <td><span class="badge badge-warning">SELL</span></td>
+                      <td>01 Sep, 2:30 PM</td>
+                      <td><span class="badge badge-warning">Pickup</span></td>
+                      <td><a href="track.html?id=R001" class="btn btn-sm btn-outline">Track</a></td>
+                    </tr>
+                    <tr>
+                      <td>#R002</td>
+                      <td class="food-name">Dal Makhani + Rice</td>
+                      <td>Hotel Rajmahal</td>
+                      <td>3 kg</td>
+                      <td><span class="badge badge-info">DONATE</span></td>
+                      <td>31 Aug, 5:00 PM</td>
+                      <td><span class="badge badge-success">Delivered</span></td>
+                      <td><a href="track.html?id=R002" class="btn btn-sm btn-outline">View</a></td>
+                    </tr>
+                    <tr>
+                      <td>#R003</td>
+                      <td class="food-name">Bread Rolls</td>
+                      <td>Modern Bakery</td>
+                      <td>2 kg</td>
+                      <td><span class="badge badge-neutral">DISTRIBUTE</span></td>
+                      <td>30 Aug, 4:00 PM</td>
+                      <td><span class="badge badge-success">Delivered</span></td>
+                      <td><button class="btn btn-sm btn-outline"
+                          onclick="showToast('success','Delivered','Received on 30 Aug at 5:15 PM')">View</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HISTORY -->
+        <div id="sec-history" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3 style="display:flex;align-items:center;gap:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Order History
+              </h3>
+            </div>
+            <div class="panel-body">
+              <p style="color:var(--text-muted);text-align:center;padding:40px;">Complete history of all your food
+                orders with delivery details.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div id="sec-profile" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3 style="display:flex;align-items:center;gap:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                My Profile
+              </h3>
+              <button class="btn btn-primary btn-sm"
+                onclick="showToast('success','Saved','Profile updated successfully!')">Save Changes</button>
+            </div>
+            <div class="panel-body">
+              <div class="form-row">
+                <div class="form-group"><label>First Name</label><input type="text" value="Mehul" /></div>
+                <div class="form-group"><label>Last Name</label><input type="text" value="Kumar" /></div>
+              </div>
+              <div class="form-group"><label>Email</label><input type="email" value="mehul@example.com" /></div>
+              <div class="form-group"><label>Mobile</label><input type="tel" value="9876512345" /></div>
+              <div class="form-group"><label>Address</label><input type="text" value="45 Satellite Road, Ahmedabad" />
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label>City</label><input type="text" value="Ahmedabad" /></div>
+                <div class="form-group"><label>Pincode</label><input type="text" value="380015" /></div>
+              </div>
+              <div class="form-group">
+                <label>Food Preferences</label>
+                <input type="text" value="Vegetarian, No spicy" placeholder="e.g. Vegetarian, No peanuts" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div id="sec-notifications" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3 style="display:flex;align-items:center;gap:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                All Notifications
+              </h3>
+              <button class="btn btn-outline btn-sm"
+                onclick="showToast('success','Done','All marked as read.')">Mark All Read</button>
+            </div>
+            <div class="panel-body">
+              <div class="notif-list">
+                <div class="notif-item unread">
+                  <div class="notif-icon bg-warning-soft">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" width="18" height="18"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                  </div>
+                  <div class="notif-text">
+                    <div class="title">Volunteer Ravi Shah has picked up your order</div>
+                    <div class="time">10 min ago</div>
+                  </div>
+                </div>
+                <div class="notif-item unread">
+                  <div class="notif-icon bg-primary-soft">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="notif-text">
+                    <div class="title">Order approved by Hotel Rajmahal</div>
+                    <div class="time">30 min ago</div>
+                  </div>
+                </div>
+                <div class="notif-item unread">
+                  <div class="notif-icon bg-info-soft">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="2" width="18" height="18"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                  </div>
+                  <div class="notif-text">
+                    <div class="title">New food available near you: Veg Biryani (20kg)</div>
+                    <div class="time">1 hr ago</div>
+                  </div>
+                </div>
+                <div class="notif-item">
+                  <div class="notif-icon bg-success-soft">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" width="18" height="18"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  </div>
+                  <div class="notif-text">
+                    <div class="title">Bread Rolls delivery confirmed – 31 Aug, 5:15 PM</div>
+                    <div class="time">1 day ago</div>
+                  </div>
+                </div>
+                <div class="notif-item">
+                  <div class="notif-icon bg-success-soft">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" width="18" height="18"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  </div>
+                  <div class="notif-text">
+                    <div class="title">Dal Makhani delivery confirmed – 30 Aug, 6:30 PM</div>
+                    <div class="time">2 days ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+  </main>
+
+  <!-- ORDER CONFIRMATION MODAL -->
+  <div class="modal-overlay" id="orderModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 style="display:flex;align-items:center;gap:8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Confirm Food Request
+        </h3>
+        <button class="modal-close" data-modal-close="orderModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="width:56px;height:56px;margin:0 auto 10px;background:var(--primary-soft);color:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          </div>
+          <h4 id="orderItemName" style="font-size:1.2rem;color:var(--primary);"></h4>
+        </div>
+        <div class="form-group">
+          <label>Quantity Needed (kg / pcs)</label>
+          <input type="number" id="orderQty" placeholder="e.g. 2" min="0.5" step="0.5" />
+        </div>
+        <div class="form-group">
+          <label>Delivery Address</label>
+          <input type="text" id="orderAddr" value="45 Satellite Road, Ahmedabad" placeholder="Your delivery address" />
+        </div>
+        <div class="form-group">
+          <label>Special Notes (optional)</label>
+          <input type="text" placeholder="e.g. No onion, please pack separately" />
+        </div>
+        <div
+          style="background:var(--bg);border-radius:12px;padding:14px;font-size:.85rem;color:var(--text-muted);border:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Your request will be sent to the food provider. Once approved, a volunteer will be assigned for delivery.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" data-modal-close="orderModal">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmOrder()">Submit Request</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script>
+    function showSection(name, linkEl) {
+      document.querySelectorAll("[id^='sec-']").forEach(s => s.classList.add("hidden"));
+      const el = document.getElementById("sec-" + name);
+      if (el) el.classList.remove("hidden");
+      if (linkEl) {
+        document.querySelectorAll(".header-nav .nav-item").forEach(a => a.classList.remove("active"));
+        linkEl.classList.add("active");
+      } else {
+        document.querySelectorAll(".header-nav .nav-item").forEach(a => {
+          if (a.getAttribute("onclick") && a.getAttribute("onclick").includes(`'${name}'`)) {
+            a.classList.add("active");
+          } else {
+            a.classList.remove("active");
+          }
+        });
+      }
+      const labels = {
+        dashboard: "Customer Dashboard", browse: "Browse Food",
+        orders: "My Orders", history: "Order History",
+        profile: "My Profile", notifications: "Notifications"
+      };
+      const titleEl = document.getElementById("pageTitle");
+      if (titleEl) titleEl.textContent = labels[name] || "Dashboard";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    let pendingOrderItem = "";
+    function orderFood(item) {
+      pendingOrderItem = item;
+      document.getElementById("orderItemName").textContent = item;
+      openModal("orderModal");
+    }
+
+    function confirmOrder() {
+      const qty = document.getElementById("orderQty").value;
+      const addr = document.getElementById("orderAddr").value.trim();
+      if (!qty || parseFloat(qty) <= 0) {
+        showToast("error", "Invalid Quantity", "Please enter a valid quantity.");
+        return;
+      }
+      if (!addr) {
+        showToast("error", "Address Required", "Please enter your delivery address.");
+        return;
+      }
+      closeModal("orderModal");
+      showToast("success", "Request Sent!",
+        `Your request for ${pendingOrderItem} (${qty} kg) has been submitted. Awaiting provider approval.`);
+      document.getElementById("orderQty").value = "";
+    }
+  </script>
+</body>
+
+</html>

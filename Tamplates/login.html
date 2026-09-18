@@ -1,0 +1,540 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – FoodLoop</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    :root {
+      --fl-primary: #B90E0A;
+      --fl-primary-dark: #8a0a07;
+      --fl-primary-light: #fdeaea;
+      --fl-dark: #3b1210;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f7f6;
+      padding: 20px;
+    }
+
+    .auth-container {
+      display: flex;
+      width: 100%;
+      max-width: 950px;
+      min-height: 580px;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+      background: #fff;
+    }
+
+    /* ========== LEFT PANEL ========== */
+    .auth-left {
+      width: 42%;
+      background: linear-gradient(180deg, rgba(185, 14, 10, 0.88), rgba(138, 10, 7, 0.92)),
+        url('https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80') center/cover;
+      color: #fff;
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .auth-left .logo-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .auth-left h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+      color: #fff;
+    }
+
+    .auth-left .subtitle {
+      font-size: 0.92rem;
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .feature-item i {
+      color: #ffb3b1;
+      font-size: 1.2rem;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* ========== RIGHT PANEL ========== */
+    .auth-right {
+      flex: 1;
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      background: #fff;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #666;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    .auth-right h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 0.35rem;
+    }
+
+    .auth-right .sub {
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin-bottom: 2rem;
+    }
+
+    /* Form Labels */
+    .form-label-custom {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-label-custom .required {
+      color: #dc3545;
+    }
+
+    /* Input Groups */
+    .input-group-custom {
+      position: relative;
+      margin-bottom: 1.25rem;
+    }
+
+    .input-group-custom .input-icon-left {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--fl-primary);
+      font-size: 1rem;
+      z-index: 2;
+    }
+
+    .input-group-custom input {
+      width: 100%;
+      padding: 0.75rem 0.75rem 0.75rem 2.75rem;
+      border: 1.5px solid #d1d5db;
+      border-radius: 0.6rem;
+      font-size: 0.92rem;
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      color: #333;
+    }
+
+    .input-group-custom input:focus {
+      outline: none;
+      border-color: var(--fl-primary);
+      box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+      background: #fff;
+    }
+
+    .input-group-custom input::placeholder {
+      color: #9ca3af;
+    }
+
+    .input-group-custom .input-icon-right {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 1rem;
+      z-index: 2;
+      background: none;
+      border: none;
+    }
+
+    .input-group-custom .input-icon-right:hover {
+      color: #555;
+    }
+
+    /* Label with forgot password */
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .forgot-link {
+      font-size: 0.82rem;
+      color: var(--fl-primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+      color: var(--fl-primary-dark);
+    }
+
+    /* Remember Me */
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .remember-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--fl-primary);
+      cursor: pointer;
+    }
+
+    .remember-row label {
+      font-size: 0.88rem;
+      color: #555;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Submit Button */
+    .btn-login {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--fl-primary);
+      color: #fff;
+      border: none;
+      border-radius: 50rem;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-login:hover {
+      background: var(--fl-primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    /* Bottom Link */
+    .bottom-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    .bottom-link a {
+      color: var(--fl-primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .bottom-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    .toast-msg {
+      padding: 14px 20px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .toast-success {
+      background: var(--fl-primary);
+    }
+
+    .toast-error {
+      background: #dc3545;
+    }
+
+    .toast-warning {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .toast-info {
+      background: #0dcaf0;
+      color: #333;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+      .auth-container {
+        flex-direction: column;
+        max-width: 100%;
+        min-height: auto;
+      }
+
+      .auth-left {
+        width: 100%;
+        padding: 2rem 1.5rem;
+        min-height: 200px;
+      }
+
+      .auth-left h2 {
+        font-size: 1.4rem;
+      }
+
+      .feature-list {
+        display: none;
+      }
+
+      .auth-right {
+        padding: 2rem 1.5rem;
+      }
+    }
+
+    /* Login page - same FoodLoop green theme */
+    .auth-left {
+      background: linear-gradient(180deg, rgba(25, 135, 84, 0.88), rgba(18, 102, 63, 0.92)),
+        url('https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80') center/cover;
+    }
+    .input-group-custom .input-icon-left { color: #198754 !important; }
+    .btn-login, .toast-success { background: #198754 !important; }
+    .btn-login:hover { background: #12663f !important; }
+    .forgot-link, .bottom-link a { color: #198754 !important; }
+    .input-group-custom input:focus {
+      border-color: #198754 !important;
+      box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12) !important;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="auth-container">
+
+    <!-- ===== LEFT PANEL ===== -->
+    <div class="auth-left">
+      <div class="logo-icon">
+        <i class="bi bi-arrow-repeat"></i>
+      </div>
+      <h2>Be Part of the FoodLoop</h2>
+      <p class="subtitle">Help us make sure good food reaches people instead of becoming waste.</p>
+      <div class="feature-list">
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Rescue surplus food from local businesses.</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Connect food with NGOs and communities.</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Help reduce unnecessary food waste.</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Become a volunteer and make an impact.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT PANEL ===== -->
+    <div class="auth-right">
+      <a href="index.html" class="close-btn" aria-label="Close">&times;</a>
+
+      <h2>Welcome Back</h2>
+      <p class="sub">Login to continue using FoodLoop.</p>
+
+      <form id="loginForm" novalidate>
+        <!-- Email -->
+        <div class="form-label-custom">Email Address <span class="required">*</span></div>
+        <div class="input-group-custom">
+          <i class="bi bi-envelope input-icon-left"></i>
+          <input type="email" id="loginEmail" placeholder="Enter your email" required>
+        </div>
+
+        <!-- Password -->
+        <div class="label-row">
+          <div class="form-label-custom">Password <span class="required">*</span></div>
+          <a href="#" class="forgot-link">Forgot Password?</a>
+        </div>
+        <div class="input-group-custom">
+          <i class="bi bi-lock input-icon-left"></i>
+          <input type="password" id="loginPassword" placeholder="Enter your password" required>
+          <button type="button" class="input-icon-right" onclick="togglePassword('loginPassword', this)">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+
+        <!-- Remember Me -->
+        <div class="remember-row">
+          <input type="checkbox" id="rememberMe">
+          <label for="rememberMe">Remember me</label>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-login">
+          <i class="bi bi-box-arrow-in-right"></i> Login
+        </button>
+      </form>
+
+      <div class="bottom-link">
+        Don't have an account? <a href="register.html">Create Account</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // Toggle password visibility
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+      }
+    }
+
+    // Toast notification
+    function showToast(type, title, message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast-msg toast-' + type;
+      toast.innerHTML = '<strong>' + title + '</strong><br>' + message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    // Form submit
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      if (!email || !password) {
+        showToast('warning', 'Fields Required', 'Please fill in all required fields.');
+        return;
+      }
+
+      // Demo login routing
+      const roleMap = {
+        'admin@foodloop.demo': 'dashboard-admin.html',
+        'business@foodloop.demo': 'dashboard-business.html',
+        'ngo@foodloop.demo': 'dashboard-ngo.html',
+        'volunteer@foodloop.demo': 'dashboard-volunteer.html',
+        'customer@foodloop.demo': 'dashboard-customer.html'
+      };
+
+      if (roleMap[email]) {
+        showToast('success', 'Login Successful', 'Redirecting to dashboard...');
+        setTimeout(() => window.location.href = roleMap[email], 1000);
+      } else {
+        showToast('success', 'Login Successful', 'Welcome back!');
+      }
+    });
+  </script>
+
+</body>
+
+</html>

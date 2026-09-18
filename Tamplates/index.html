@@ -1,0 +1,2362 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodLoop - Rescue Food. Feed People. Reduce Waste.</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- AOS CSS -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --fl-primary: #198754;
+      --fl-primary-dark: #12663f;
+      --fl-primary-light: #eaf7ef;
+      --fl-cream: #fffaf2;
+      --fl-dark: #18332a;
+      --fl-text-muted: #60706a;
+      --fl-bg-color: #ffffff;
+      --fl-text-color: #212529;
+      --fl-card-bg: #ffffff;
+      --fl-border-color: #dee2e6;
+    }
+
+    [data-bs-theme="dark"] {
+      --fl-primary: #198754;
+      --fl-primary-dark: #12663f;
+      --fl-primary-light: #1a2a22;
+      --fl-cream: #18201d;
+      --fl-dark: #f8f9fa;
+      --fl-text-muted: #aab6b1;
+      --fl-bg-color: #121212;
+      --fl-text-color: #e0e0e0;
+      --fl-card-bg: #1e1e1e;
+      --fl-border-color: #333333;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--fl-bg-color);
+      color: var(--fl-text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Typography */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-weight: 700;
+      color: var(--fl-dark);
+    }
+
+    [data-bs-theme="dark"] h1,
+    [data-bs-theme="dark"] h2,
+    [data-bs-theme="dark"] h3,
+    [data-bs-theme="dark"] h4,
+    [data-bs-theme="dark"] h5,
+    [data-bs-theme="dark"] h6 {
+      color: #f8f9fa;
+    }
+
+    .text-muted-custom {
+      color: var(--fl-text-muted) !important;
+    }
+
+    /* FoodLoop logo - clear and properly visible */
+    .foodloop-logo {
+      height: 58px;
+      width: auto;
+      max-width: 190px;
+      object-fit: contain;
+      display: block;
+      margin-right: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .foodloop-logo {
+        height: 50px;
+        max-width: 165px;
+      }
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: var(--fl-bg-color);
+      border-bottom: 1px solid var(--fl-border-color);
+      transition: all 0.3s ease;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--fl-primary) !important;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      color: var(--fl-text-color) !important;
+    }
+
+    .nav-link:hover {
+      color: var(--fl-primary) !important;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background-color: var(--fl-primary);
+      border-color: var(--fl-primary);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--fl-primary-dark);
+      border-color: var(--fl-primary-dark);
+    }
+
+    /* Hero Section */
+    .hero-section {
+      position: relative;
+      background: linear-gradient(rgba(24, 51, 42, 0.7), rgba(24, 51, 42, 0.8)), url('https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1920&q=80') center/cover;
+      color: white;
+      padding: 120px 0 160px;
+      text-align: center;
+    }
+
+    .hero-section h1 {
+      color: white;
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero-section h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero-section {
+        padding: 100px 0 120px;
+      }
+    }
+
+    /* Cards */
+    .card-custom {
+      background-color: var(--fl-card-bg);
+      border: 1px solid var(--fl-border-color);
+      border-radius: 1rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-custom:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      margin-top: -60px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .qa-card {
+      text-align: center;
+      padding: 2rem;
+      height: 100%;
+    }
+
+    .qa-icon {
+      font-size: 2.5rem;
+      color: var(--fl-primary);
+      margin-bottom: 1rem;
+    }
+
+    /* Sections Shared */
+    .section-padding {
+      padding: 80px 0;
+    }
+
+    .section-badge {
+      display: inline-block;
+      padding: 0.35em 0.8em;
+      font-size: 0.85em;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--fl-primary);
+      background-color: var(--fl-primary-light);
+      border-radius: 50rem;
+      margin-bottom: 1rem;
+    }
+
+    .bg-light-green {
+      background-color: var(--fl-primary-light);
+    }
+
+    .bg-cream {
+      background-color: var(--fl-cream);
+    }
+
+    /* Stats */
+    .stat-box {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--fl-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* How it works */
+    .step-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: var(--fl-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 auto 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .step-connector {
+      position: relative;
+    }
+
+    @media (min-width: 992px) {
+      .step-connector:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        width: 100%;
+        height: 2px;
+        background-color: var(--fl-border-color);
+        z-index: 1;
+      }
+    }
+
+    /* Video Cards */
+    .video-card {
+      position: relative;
+      border-radius: 1rem;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .video-card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .video-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .play-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+    }
+
+    .video-card:hover .play-overlay {
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .play-btn {
+      width: 60px;
+      height: 60px;
+      background: var(--fl-primary);
+      border-radius: 50%;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 15px rgba(25, 135, 84, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+      }
+    }
+
+    /* Video Library Enhancements */
+    .video-item-card {
+      background: var(--fl-card-bg);
+      border: 1px solid var(--fl-border-color);
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .video-item-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    .video-thumb-wrap {
+      position: relative;
+      width: 100%;
+      height: 210px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .video-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .video-item-card:hover .video-thumb-wrap img {
+      transform: scale(1.06);
+    }
+
+    .video-cat-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--fl-primary);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 50rem;
+      z-index: 3;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .video-duration-badge {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.78);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      z-index: 3;
+      backdrop-filter: blur(4px);
+    }
+
+    .video-item-card .card-body {
+      padding: 1.25rem 1.25rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .video-item-card .card-body h5 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.45rem;
+      color: var(--fl-dark);
+      transition: color 0.2s ease;
+    }
+
+    [data-bs-theme="dark"] .video-item-card .card-body h5 {
+      color: #f8f9fa;
+    }
+
+    .video-item-card:hover .card-body h5 {
+      color: var(--fl-primary);
+    }
+
+    .video-item-card .card-body p {
+      font-size: 0.85rem;
+      color: var(--fl-text-muted);
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+      flex-grow: 1;
+    }
+
+    .video-item-card .watch-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--fl-primary);
+      font-size: 0.88rem;
+      font-weight: 700;
+      transition: gap 0.2s ease;
+    }
+
+    .video-item-card:hover .watch-action {
+      gap: 9px;
+    }
+
+    .video-filter-btn {
+      border: 1.5px solid var(--fl-border-color);
+      background: transparent;
+      color: var(--fl-text-color);
+      border-radius: 50rem;
+      padding: 0.45rem 1.2rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .video-filter-btn:hover {
+      border-color: var(--fl-primary);
+      color: var(--fl-primary);
+    }
+
+    .video-filter-btn.active {
+      background: var(--fl-primary);
+      border-color: var(--fl-primary);
+      color: #ffffff;
+    }
+
+    /* CTA */
+    .cta-box {
+      background: linear-gradient(135deg, var(--fl-primary), var(--fl-primary-dark));
+      color: white;
+      border-radius: 1.5rem;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .cta-box h2 {
+      color: white !important;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #111;
+      color: #ccc;
+      padding: 60px 0 20px;
+    }
+
+    footer h5 {
+      color: white !important;
+      margin-bottom: 1.5rem;
+    }
+
+    footer a {
+      color: #ccc;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    footer a:hover {
+      color: var(--fl-primary);
+    }
+
+    /* Auth Modal (Matching login.html & register.html) */
+    #authModal .modal-dialog {
+      max-width: 960px;
+      margin: 1.75rem auto;
+    }
+
+    #authModal .modal-content {
+      border-radius: 1.25rem;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+      border: none;
+      background: #fff !important;
+      color: #333 !important;
+    }
+
+    .auth-modal-wrapper {
+      display: flex;
+      width: 100%;
+      min-height: 590px;
+      background: #fff;
+      position: relative;
+    }
+
+    /* Left Panel */
+    .auth-modal-wrapper .auth-left {
+      width: 40%;
+      background: linear-gradient(180deg, rgba(25, 135, 84, 0.88), rgba(18, 102, 63, 0.92)),
+        url('https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80') center/cover !important;
+      color: #fff !important;
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .auth-modal-wrapper .auth-left .logo-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      color: #fff;
+    }
+
+    .auth-modal-wrapper .auth-left h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+      color: #fff !important;
+    }
+
+    .auth-modal-wrapper .auth-left .subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.75) !important;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .auth-modal-wrapper .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .auth-modal-wrapper .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: #fff !important;
+    }
+
+    .auth-modal-wrapper .feature-item i {
+      color: #a3f7c4;
+      font-size: 1.15rem;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* Right Panel */
+    .auth-modal-wrapper .auth-right {
+      flex: 1;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #fff !important;
+      color: #333 !important;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .auth-modal-wrapper .auth-right h2 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #1a1a1a !important;
+      margin-bottom: 0.35rem;
+    }
+
+    .auth-modal-wrapper .auth-right .sub {
+      font-size: 0.88rem;
+      color: #6c757d !important;
+      margin-bottom: 1.5rem;
+    }
+
+    .auth-modal-wrapper .close-btn-auth {
+      position: absolute;
+      top: 1rem;
+      right: 1.25rem;
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      color: #666;
+      cursor: pointer;
+      line-height: 1;
+      z-index: 5;
+    }
+
+    .auth-modal-wrapper .close-btn-auth:hover {
+      color: #111;
+    }
+
+    /* Auth Tab Navigation */
+    .auth-tab-nav {
+      display: flex;
+      background: #f3f4f6;
+      border-radius: 50rem;
+      padding: 4px;
+      margin-bottom: 1.5rem;
+      list-style: none;
+    }
+
+    .auth-tab-nav .nav-item {
+      flex: 1;
+    }
+
+    .auth-tab-nav .nav-link {
+      width: 100%;
+      border-radius: 50rem !important;
+      font-weight: 700;
+      font-size: 0.92rem;
+      padding: 0.55rem 1rem;
+      color: #4b5563 !important;
+      border: none !important;
+      background: transparent;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .auth-tab-nav .nav-link:hover {
+      color: #198754 !important;
+    }
+
+    .auth-tab-nav .nav-link.active {
+      background: #198754 !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 8px rgba(25, 135, 84, 0.25);
+    }
+
+    /* Form Labels */
+    .auth-modal-wrapper .form-label-custom {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #333 !important;
+      margin-bottom: 0.35rem;
+    }
+
+    .auth-modal-wrapper .form-label-custom .required {
+      color: #dc3545;
+    }
+
+    .auth-modal-wrapper .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    }
+
+    .auth-modal-wrapper .forgot-link {
+      font-size: 0.82rem;
+      color: #198754 !important;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .auth-modal-wrapper .forgot-link:hover {
+      text-decoration: underline;
+      color: #12663f !important;
+    }
+
+    /* Input Groups */
+    .auth-modal-wrapper .input-group-custom {
+      position: relative;
+      margin-bottom: 1.15rem;
+    }
+
+    .auth-modal-wrapper .input-group-custom .input-icon-left {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #198754 !important;
+      font-size: 0.95rem;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .auth-modal-wrapper .input-group-custom input {
+      width: 100%;
+      padding: 0.7rem 0.75rem 0.7rem 2.6rem;
+      border: 1.5px solid #d1d5db;
+      border-radius: 0.6rem;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb !important;
+      color: #333 !important;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .auth-modal-wrapper .input-group-custom input:focus {
+      outline: none;
+      border-color: #198754 !important;
+      box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15) !important;
+      background: #fff !important;
+    }
+
+    .auth-modal-wrapper .input-group-custom input::placeholder {
+      color: #9ca3af !important;
+    }
+
+    .auth-modal-wrapper .input-group-custom .input-icon-right {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 0.95rem;
+      z-index: 2;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    .auth-modal-wrapper .input-group-custom .input-icon-right:hover {
+      color: #555;
+    }
+
+    .auth-modal-wrapper .input-no-icon {
+      width: 100%;
+      padding: 0.7rem 0.75rem;
+      border: 1.5px solid #d1d5db;
+      border-radius: 0.6rem;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb !important;
+      color: #333 !important;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 1.15rem;
+    }
+
+    .auth-modal-wrapper .input-no-icon:focus {
+      outline: none;
+      border-color: #198754 !important;
+      box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15) !important;
+      background: #fff !important;
+    }
+
+    .auth-modal-wrapper .input-no-icon::placeholder {
+      color: #9ca3af !important;
+    }
+
+    .auth-modal-wrapper .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .auth-modal-wrapper .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Role selection */
+    .auth-modal-wrapper .role-section-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #333 !important;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-modal-wrapper .role-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+
+    .auth-modal-wrapper .role-card {
+      border: 1.5px solid #d1d5db;
+      border-radius: 0.6rem;
+      padding: 0.7rem 0.5rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      background: #fff !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .auth-modal-wrapper .role-card:hover {
+      background: #f5f7f9 !important;
+      border-color: #b8c0c7 !important;
+    }
+
+    .auth-modal-wrapper .role-card.active {
+      background: #e8f7fd !important;
+      border-color: #198754 !important;
+    }
+
+    .auth-modal-wrapper .role-card i {
+      font-size: 1.2rem;
+      color: #198754;
+    }
+
+    .auth-modal-wrapper .role-card span {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #333 !important;
+    }
+
+    /* Remember & Terms */
+    .auth-modal-wrapper .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .auth-modal-wrapper .remember-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #198754;
+      cursor: pointer;
+    }
+
+    .auth-modal-wrapper .remember-row label {
+      font-size: 0.88rem;
+      color: #555 !important;
+      cursor: pointer;
+      user-select: none;
+      margin-bottom: 0;
+    }
+
+    .auth-modal-wrapper .terms-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+    }
+
+    .auth-modal-wrapper .terms-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #198754;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .auth-modal-wrapper .terms-row label {
+      font-size: 0.82rem;
+      color: #6c757d !important;
+      cursor: pointer;
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+
+    .auth-modal-wrapper .terms-row label a {
+      color: #198754 !important;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .auth-modal-wrapper .terms-row label a:hover {
+      text-decoration: underline;
+    }
+
+    /* Password strength */
+    .auth-modal-wrapper .strength-bar-container {
+      height: 4px;
+      background: #e5e7eb !important;
+      border-radius: 2px;
+      margin-top: -0.5rem;
+      margin-bottom: 0.3rem;
+      overflow: hidden;
+    }
+
+    .auth-modal-wrapper .strength-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+      width: 0%;
+    }
+
+    .auth-modal-wrapper .strength-label {
+      font-size: 0.72rem;
+      color: #9ca3af !important;
+      margin-bottom: 1rem;
+    }
+
+    /* Action Buttons */
+    .auth-modal-wrapper .btn-auth-primary {
+      width: 100%;
+      padding: 0.85rem;
+      background: #198754 !important;
+      color: #fff !important;
+      border: none;
+      border-radius: 50rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .auth-modal-wrapper .btn-auth-primary:hover {
+      background: #12663f !important;
+      transform: translateY(-1px);
+      color: #fff !important;
+    }
+
+    .auth-modal-wrapper .btn-auth-primary:active {
+      transform: translateY(0);
+    }
+
+    .auth-modal-wrapper .bottom-link {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-size: 0.88rem;
+      color: #6c757d !important;
+    }
+
+    .auth-modal-wrapper .bottom-link a {
+      color: #198754 !important;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .auth-modal-wrapper .bottom-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Toast Container */
+    .modal-toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+    }
+
+    .modal-toast-msg {
+      padding: 14px 20px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 10px;
+      animation: modalSlideIn 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-toast-success { background: #198754; }
+    .modal-toast-error { background: #dc3545; }
+    .modal-toast-warning { background: #ffc107; color: #333; }
+    .modal-toast-info { background: #0dcaf0; color: #333; }
+
+    @keyframes modalSlideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .auth-modal-wrapper {
+        flex-direction: column;
+      }
+      .auth-modal-wrapper .auth-left {
+        width: 100%;
+        padding: 2rem 1.5rem;
+        min-height: 180px;
+      }
+      .auth-modal-wrapper .auth-left h2 {
+        font-size: 1.3rem;
+      }
+      .auth-modal-wrapper .feature-list {
+        display: none;
+      }
+      .auth-modal-wrapper .auth-right {
+        padding: 1.5rem;
+        max-height: none;
+      }
+      .auth-modal-wrapper .form-row,
+      .auth-modal-wrapper .form-row-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Dark Mode Toggle */
+    .dark-mode-toggle {
+      background: none;
+      border: none;
+      color: var(--fl-text-color);
+      font-size: 1.25rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sticky Navbar -->
+  <nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="{% static 'assets/foodloop-logo.png' %}" alt="FoodLoop Logo" class="foodloop-logo">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-link-item"><a class="nav-link" href="#">Home</a></li>
+          <li class="nav-link-item"><a class="nav-link" href="#impact">Impact</a></li>
+          <li class="nav-link-item"><a class="nav-link" href="#food">Find Food</a></li>
+          <li class="nav-link-item"><a class="nav-link" href="#how">How It Works</a></li>
+          <li class="nav-link-item"><a class="nav-link" href="#awareness">Awareness</a></li>
+          <li class="nav-link-item"><a class="nav-link" href="#videos">Videos</a></li>
+          <li class="nav-link-item"><a class="nav-link" href="track.html">Track Delivery</a></li>
+          <li class="nav-link-item"><a class="nav-link" href="#community">Community</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+          <button class="dark-mode-toggle" id="darkModeBtn" aria-label="Toggle dark mode">
+            <i class="bi bi-moon-fill" id="darkModeIcon"></i>
+          </button>
+          <a href="login.html" class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#authModal">Login / Register</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container" data-aos="fade-up">
+      <h1>Rescue Food. Feed People. Reduce Waste.</h1>
+      <p class="lead mb-4 mx-auto" style="max-width: 800px; color: #f8f9fa;">
+        FoodLoop connects food businesses with surplus food to NGOs and volunteers, ensuring edible food reaches those
+        in need rather than the landfill.
+      </p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="#food" class="btn btn-primary btn-lg rounded-pill px-5">Find Food</a>
+        <button class="btn btn-outline-light btn-lg rounded-pill px-5" data-bs-toggle="modal"
+          data-bs-target="#authModal">Donate Food</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Action Cards -->
+  <section class="container quick-actions">
+    <div class="row g-4">
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="card card-custom qa-card">
+          <i class="bi bi-search qa-icon"></i>
+          <h4 class="card-title">Find Surplus Food</h4>
+          <p class="text-muted-custom">Locate available surplus food in your area from registered businesses and
+            individuals.</p>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="card card-custom qa-card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#authModal">
+          <i class="bi bi-heart qa-icon"></i>
+          <h4 class="card-title">Donate Surplus Food</h4>
+          <p class="text-muted-custom">Share your extra food with local charities, NGOs, and community centers easily.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="card card-custom qa-card">
+          <i class="bi bi-box-seam qa-icon"></i>
+          <h4 class="card-title">List Surplus Food</h4>
+          <p class="text-muted-custom">Restaurants and businesses can quickly list items before they go to waste.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Food Waste Crisis / Impact -->
+  <section id="impact" class="section-padding bg-light-green mt-5">
+    <div class="container">
+      <div class="text-center mb-5" data-aos="fade-up">
+        <span class="section-badge">The Global Crisis</span>
+        <h2>Food Waste: A Crisis We Can Solve</h2>
+        <p class="text-muted-custom max-w-750 mx-auto mt-3">Understanding the scale of the problem is the first step
+          toward finding a solution.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="row g-4 mb-5 pb-4 border-bottom border-success-subtle">
+        <div class="col-6 col-md-3 stat-box" data-aos="zoom-in" data-aos-delay="100">
+          <div class="stat-number"><span class="counter" data-target="1.3">0</span>B</div>
+          <div class="text-muted-custom fw-medium">Tonnes wasted annually</div>
+        </div>
+        <div class="col-6 col-md-3 stat-box" data-aos="zoom-in" data-aos-delay="200">
+          <div class="stat-number"><span class="counter" data-target="10">0</span>%</div>
+          <div class="text-muted-custom fw-medium">Global GHG emissions</div>
+        </div>
+        <div class="col-6 col-md-3 stat-box" data-aos="zoom-in" data-aos-delay="300">
+          <div class="stat-number">$<span class="counter" data-target="1">0</span>T</div>
+          <div class="text-muted-custom fw-medium">Economic loss yearly</div>
+        </div>
+        <div class="col-6 col-md-3 stat-box" data-aos="zoom-in" data-aos-delay="400">
+          <div class="stat-number"><span class="counter" data-target="828">0</span>M</div>
+          <div class="text-muted-custom fw-medium">People go hungry</div>
+        </div>
+      </div>
+
+      <!-- Articles -->
+      <div class="row g-4 mt-4">
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="card card-custom h-100 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=900&q=80"
+              class="card-img-top" alt="Environmental Impact" style="height: 200px; object-fit: cover;">
+            <div class="card-body p-4">
+              <h5 class="card-title mb-3">Environmental Impact</h5>
+              <p class="card-text text-muted-custom">Food waste in landfills produces methane, a greenhouse gas 80x more
+                potent than CO2. Wasted food also wastes all the water, energy, and land used to produce it.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="card card-custom h-100 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=900&q=80"
+              class="card-img-top" alt="Economic Impact" style="height: 200px; object-fit: cover;">
+            <div class="card-body p-4">
+              <h5 class="card-title mb-3">Economic Impact</h5>
+              <p class="card-text text-muted-custom">Food waste costs the global economy over $1 trillion per year.
+                Households throw away 30-40% of food they purchase. Restaurants waste 4-10% of food before it reaches
+                customers.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+          <div class="card card-custom h-100 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=900&q=80"
+              class="card-img-top" alt="Social Impact" style="height: 200px; object-fit: cover;">
+            <div class="card-body p-4">
+              <h5 class="card-title mb-3">Social Impact</h5>
+              <p class="card-text text-muted-custom">While 828 million people face hunger, one-third of food produced
+                globally is wasted. Redistributing just 25% of wasted food could feed every hungry person.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Surplus Food -->
+  <section id="food" class="section-padding">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-5" data-aos="fade-right">
+        <div>
+          <span class="section-badge">Available Now</span>
+          <h2 class="mb-0">Featured Surplus Food</h2>
+        </div>
+        <a href="#" class="btn btn-outline-primary d-none d-md-block rounded-pill px-4">View All</a>
+      </div>
+
+      <div class="row g-4">
+        <!-- Food Card 1 -->
+        <div class="col-md-4" data-aos="zoom-in" data-aos-delay="100">
+          <div class="card card-custom h-100 overflow-hidden position-relative">
+            <span class="badge bg-success position-absolute top-0 end-0 m-3 z-3">Available</span>
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80"
+              class="card-img-top" alt="Buffet Meals" style="height: 220px; object-fit: cover;">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-primary fw-semibold"><i class="bi bi-clock-history me-1"></i> Ends in 2h</span>
+                <span class="text-muted-custom"><i class="bi bi-geo-alt me-1"></i> 2.5 km</span>
+              </div>
+              <h5 class="card-title">Mixed Buffet Meals</h5>
+              <p class="text-muted-custom small mb-3">Freshly prepared buffet food from today's lunch service.
+                Vegetarian and non-vegetarian packed separately.</p>
+              <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
+                <span class="fw-bold">Serves: 40-50</span>
+                <button class="btn btn-primary btn-sm rounded-pill px-3">Request</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Food Card 2 -->
+        <div class="col-md-4" data-aos="zoom-in" data-aos-delay="200">
+          <div class="card card-custom h-100 overflow-hidden position-relative">
+            <span class="badge bg-success position-absolute top-0 end-0 m-3 z-3">Available</span>
+            <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80"
+              class="card-img-top" alt="Bakery Items" style="height: 220px; object-fit: cover;">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-primary fw-semibold"><i class="bi bi-clock-history me-1"></i> Ends in 4h</span>
+                <span class="text-muted-custom"><i class="bi bi-geo-alt me-1"></i> 1.2 km</span>
+              </div>
+              <h5 class="card-title">Assorted Bakery Items</h5>
+              <p class="text-muted-custom small mb-3">Breads, buns, and assorted pastries from today's bake. Completely
+                fresh and untouched.</p>
+              <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
+                <span class="fw-bold">Serves: ~20</span>
+                <button class="btn btn-primary btn-sm rounded-pill px-3">Request</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Food Card 3 -->
+        <div class="col-md-4" data-aos="zoom-in" data-aos-delay="300">
+          <div class="card card-custom h-100 overflow-hidden position-relative">
+            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 z-3">Reserved</span>
+            <img src="https://images.unsplash.com/photo-1595854341625-f33ee10dbf94?auto=format&fit=crop&w=900&q=80"
+              class="card-img-top" alt="Produce" style="height: 220px; object-fit: cover; filter: grayscale(50%);">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted fw-semibold"><i class="bi bi-check2-circle me-1"></i> Claimed</span>
+                <span class="text-muted-custom"><i class="bi bi-geo-alt me-1"></i> 3.8 km</span>
+              </div>
+              <h5 class="card-title text-muted">Fresh Produce Box</h5>
+              <p class="text-muted-custom small mb-3">Slightly blemished but perfectly edible fruits and vegetables from
+                local grocer.</p>
+              <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
+                <span class="fw-bold text-muted">Serves: 10 kg</span>
+                <button class="btn btn-secondary btn-sm rounded-pill px-3" disabled>Claimed</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4 d-md-none">
+        <a href="#" class="btn btn-outline-primary rounded-pill px-4">View All</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how" class="section-padding bg-cream">
+    <div class="container text-center">
+      <span class="section-badge" data-aos="fade-up">Process</span>
+      <h2 class="mb-5" data-aos="fade-up" data-aos-delay="100">How FoodLoop Works</h2>
+
+      <div class="row text-center mt-5">
+        <div class="col-md-3 mb-4 mb-md-0 step-connector" data-aos="fade-up" data-aos-delay="100">
+          <div class="step-circle">1</div>
+          <h5 class="mb-2">List Surplus Food</h5>
+          <p class="text-muted-custom small px-2">Food businesses or individuals upload details of their surplus food.
+          </p>
+        </div>
+        <div class="col-md-3 mb-4 mb-md-0 step-connector" data-aos="fade-up" data-aos-delay="200">
+          <div class="step-circle">2</div>
+          <h5 class="mb-2">Check Eligibility</h5>
+          <p class="text-muted-custom small px-2">Quality and safety standards are verified based on food type and
+            timing.</p>
+        </div>
+        <div class="col-md-3 mb-4 mb-md-0 step-connector" data-aos="fade-up" data-aos-delay="300">
+          <div class="step-circle">3</div>
+          <h5 class="mb-2">Match & Collect</h5>
+          <p class="text-muted-custom small px-2">NGOs or volunteers claim the food and coordinate collection.</p>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+          <div class="step-circle">4</div>
+          <h5 class="mb-2">Deliver & Rescue</h5>
+          <p class="text-muted-custom small px-2">Food is safely delivered to those in need, completing the loop.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solutions Section -->
+  <section id="awareness" class="section-padding">
+    <div class="container">
+      <div class="text-center mb-5" data-aos="fade-up">
+        <span class="section-badge">Take Action</span>
+        <h2>Solutions to Reduce Food Waste</h2>
+        <p class="text-muted-custom mx-auto mt-3" style="max-width: 600px;">Simple steps everyone can take to make a
+          massive impact on the global food waste crisis.</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="card card-custom h-100 p-4">
+            <i class="bi bi-journal-check text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5>Plan Your Meals</h5>
+            <p class="text-muted-custom mb-0">Make shopping lists, plan weekly meals, and buy only what you need to
+              avoid over-purchasing.</p>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="card card-custom h-100 p-4">
+            <i class="bi bi-archive text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5>Proper Storage</h5>
+            <p class="text-muted-custom mb-0">Store food at correct temperatures, use airtight containers, and follow
+              the First-In-First-Out rule.</p>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+          <div class="card card-custom h-100 p-4">
+            <i class="bi bi-gift text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5>Donate Surplus Food</h5>
+            <p class="text-muted-custom mb-0">Connect with local food banks, NGOs, and community kitchens through
+              FoodLoop.</p>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="400">
+          <div class="card card-custom h-100 p-4">
+            <i class="bi bi-flower1 text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5>Compost Food Scraps</h5>
+            <p class="text-muted-custom mb-0">Turn unavoidable food waste like peels and cores into nutrient-rich
+              compost for gardens.</p>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="500">
+          <div class="card card-custom h-100 p-4">
+            <i class="bi bi-truck text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5>Support Food Rescue</h5>
+            <p class="text-muted-custom mb-0">Volunteer with FoodLoop to help collect and deliver surplus food to those
+              in need.</p>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="600">
+          <div class="card card-custom h-100 p-4">
+            <i class="bi bi-megaphone text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5>Spread Awareness</h5>
+            <p class="text-muted-custom mb-0">Educate your community about the impact of food waste and share simple
+              everyday solutions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Awareness Articles -->
+  <section class="section-padding bg-cream">
+    <div class="container">
+      <div class="text-center mb-5" data-aos="fade-up">
+        <span class="section-badge">Learn & Take Action</span>
+        <h2>Understanding Food Waste</h2>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="card card-custom border-0 h-100 shadow-sm overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?auto=format&fit=crop&w=900&q=80"
+              alt="Article 1" class="card-img-top" style="height: 220px; object-fit: cover;">
+            <div class="card-body p-4">
+              <span class="badge bg-primary bg-opacity-10 text-primary mb-2">Food Waste</span>
+              <h5 class="card-title">Why Does Food Get Wasted?</h5>
+              <p class="card-text text-muted-custom">Explore the supply chain from farm to fork and uncover where and
+                why massive amounts of edible food are discarded daily.</p>
+              <a href="#" class="text-primary text-decoration-none fw-semibold">Read More <i
+                  class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="card card-custom border-0 h-100 shadow-sm overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=900&q=80"
+              alt="Article 2" class="card-img-top" style="height: 220px; object-fit: cover;">
+            <div class="card-body p-4">
+              <span class="badge bg-primary bg-opacity-10 text-primary mb-2">Community</span>
+              <h5 class="card-title">How Communities Can Rescue Food</h5>
+              <p class="card-text text-muted-custom">Discover how local neighborhoods are setting up community fridges
+                and sharing networks to ensure no food goes to waste.</p>
+              <a href="#" class="text-primary text-decoration-none fw-semibold">Read More <i
+                  class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+          <div class="card card-custom border-0 h-100 shadow-sm overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=900&q=80"
+              alt="Article 3" class="card-img-top" style="height: 220px; object-fit: cover;">
+            <div class="card-body p-4">
+              <span class="badge bg-primary bg-opacity-10 text-primary mb-2">Sustainable Living</span>
+              <h5 class="card-title">Simple Ways to Reduce Food Waste</h5>
+              <p class="card-text text-muted-custom">Practical, everyday habits you can adopt right now in your own
+                kitchen to drastically cut down on household food waste.</p>
+              <a href="#" class="text-primary text-decoration-none fw-semibold">Read More <i
+                  class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Awareness & Impact Videos -->
+  <section class="section-padding bg-cream" id="videos">
+    <div class="container">
+      <div class="text-center mb-5" data-aos="fade-up">
+        <span class="section-badge">Watch & Learn</span>
+        <h2>Food Waste & Rescue Video Library</h2>
+        <p class="text-muted-custom mx-auto mt-2" style="max-width: 650px;">
+          Explore insightful documentaries, simple kitchen hacks, and real-life rescue stories showing how we can end hunger and protect our planet together.
+        </p>
+
+        <!-- Category Filters -->
+        <div class="d-flex justify-content-center gap-2 mt-4 flex-wrap">
+          <button class="video-filter-btn active" onclick="filterVideos('all', this)">All Videos (9)</button>
+          <button class="video-filter-btn" onclick="filterVideos('waste', this)"><i class="bi bi-trash-fill text-danger me-1"></i>Food Waste Crisis</button>
+          <button class="video-filter-btn" onclick="filterVideos('rescue', this)"><i class="bi bi-heart-pulse-fill text-success me-1"></i>Food Rescue Operations</button>
+          <button class="video-filter-btn" onclick="filterVideos('tips', this)"><i class="bi bi-lightbulb-fill text-warning me-1"></i>Kitchen Hacks & Tips</button>
+          <button class="video-filter-btn" onclick="filterVideos('community', this)"><i class="bi bi-people-fill text-primary me-1"></i>Community Impact</button>
+        </div>
+      </div>
+
+      <div class="row g-4" id="videoGrid">
+        <!-- Video 1: Food Waste Crisis -->
+        <div class="col-md-6 col-lg-4 video-filter-item" data-category="waste" data-aos="fade-up" data-aos-delay="100">
+          <div class="video-item-card shadow-sm" onclick="openVideo('6RlxySFrkIM', 'Food Waste: The World\'s Dumbest Problem', '/static/assets/videos/food-waste-guide.mp4')">
+            <div class="video-thumb-wrap">
+              <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80"
+                alt="Food Waste: The World's Dumbest Problem">
+              <span class="video-cat-badge bg-danger">Food Waste Crisis</span>
+              <span class="video-duration-badge"><i class="bi bi-clock me-1"></i>9:30</span>
+              <div class="play-overlay">
+                <div class="play-btn">
+                  <i class="bi bi-play-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h5>Food Waste: The World's Dumbest Problem</h5>
+              <p>An eye-opening breakdown of how 1.3 billion tons of food is wasted annually and the enormous carbon footprint driving climate change.</p>
+              <div class="watch-action">
+                <i class="bi bi-play-circle-fill"></i> Watch Video
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 2: Food Rescue in Action -->
+        <div class="col-md-6 col-lg-4 video-filter-item" data-category="rescue" data-aos="fade-up" data-aos-delay="200">
+          <div class="video-item-card shadow-sm" onclick="openVideo('dPUk1URTWOQ', 'Surplus Food Rescue: Farm & Store to Fork', '/static/assets/videos/food-rescue.mp4')">
+            <div class="video-thumb-wrap">
+              <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=900&q=80"
+                alt="Surplus Food Rescue">
+              <span class="video-cat-badge bg-success">Food Rescue</span>
+              <span class="video-duration-badge"><i class="bi bi-clock me-1"></i>4:15</span>
+              <div class="play-overlay">
+                <div class="play-btn">
+                  <i class="bi bi-play-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h5>Surplus Food Rescue: Farm & Store to Fork</h5>
+              <p>Follow dedicated volunteers salvaging fresh produce and restaurant surplus before it reaches the dump, routing it directly to families.</p>
+              <div class="watch-action">
+                <i class="bi bi-play-circle-fill"></i> Watch Video
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 3: Food Waste Crisis -->
+        <div class="col-md-6 col-lg-4 video-filter-item" data-category="waste" data-aos="fade-up" data-aos-delay="300">
+          <div class="video-item-card shadow-sm" onclick="openVideo('WREXBUZBrS8', 'The Journey of a Strawberry: Cost of Waste', '/static/assets/videos/food-waste-guide.mp4')">
+            <div class="video-thumb-wrap">
+              <img src="https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=900&q=80"
+                alt="The Journey of a Strawberry">
+              <span class="video-cat-badge bg-danger">Food Waste</span>
+              <span class="video-duration-badge"><i class="bi bi-clock me-1"></i>2:10</span>
+              <div class="play-overlay">
+                <div class="play-btn">
+                  <i class="bi bi-play-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h5>The Journey of a Strawberry: Cost of Waste</h5>
+              <p>A poignant look at the massive water, human labor, fuel, and refrigeration expended before fresh food is discarded without a second thought.</p>
+              <div class="watch-action">
+                <i class="bi bi-play-circle-fill"></i> Watch Video
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 4: Food Rescue Operations -->
+        <div class="col-md-6 col-lg-4 video-filter-item" data-category="rescue" data-aos="fade-up" data-aos-delay="100">
+          <div class="video-item-card shadow-sm" onclick="openVideo('l4n6tZ35eR4', 'Cold-Chain Logistics & Safe Volunteer Transport', '/static/assets/videos/community-rescue.mp4')">
+            <div class="video-thumb-wrap">
+              <img src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&w=900&q=80"
+                alt="Rescue Squad Operations">
+              <span class="video-cat-badge bg-success">Rescue Operations</span>
+              <span class="video-duration-badge"><i class="bi bi-clock me-1"></i>5:45</span>
+              <div class="play-overlay">
+                <div class="play-btn">
+                  <i class="bi bi-play-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h5>Cold-Chain Logistics & Rescue Fleets</h5>
+              <p>How technology-enabled temperature monitoring, thermal carriers, and routing algorithms transport perishable surplus safely.</p>
+              <div class="watch-action">
+                <i class="bi bi-play-circle-fill"></i> Watch Video
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 5: Kitchen Hacks & Tips -->
+        <div class="col-md-6 col-lg-4 video-filter-item" data-category="tips" data-aos="fade-up" data-aos-delay="200">
+          <div class="video-item-card shadow-sm" onclick="openVideo('ishA6kry8fs', 'Stop Food Waste at Home: Smart Fridge Hacks', '/static/assets/videos/kitchen-tips.mp4')">
+            <div class="video-thumb-wrap">
+              <img src="https://images.unsplash.com/photo-1498579397066-22750a3cb424?auto=format&fit=crop&w=900&q=80"
+                alt="Stop Food Waste at Home">
+              <span class="video-cat-badge bg-warning text-dark">Kitchen Hacks</span>
+              <span class="video-duration-badge"><i class="bi bi-clock me-1"></i>4:50</span>
+              <div class="play-overlay">
+                <div class="play-btn">
+                  <i class="bi bi-play-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h5>Stop Food Waste at Home: Smart Fridge Hacks</h5>
+              <p>Easy organizational habits, freezer preservation techniques, and portion planning that save an average household over $1,500 every year.</p>
+              <div class="watch-action">
+                <i class="bi bi-play-circle-fill"></i> Watch Video
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 6: Food Rescue in Action -->
+        <div class="col-md-6 col-lg-4 video-filter-item" data-category="rescue" data-aos="fade-up" data-aos-delay="300">
+          <div class="video-item-card shadow-sm" onclick="openVideo('G9bL3R59M4E', 'Community Kitchens: Hot Meals for Families', '/static/assets/videos/food-rescue.mp4')">
+            <div class="video-thumb-wrap">
+              <img src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?auto=format&fit=crop&w=900&q=80"
+                alt="Community Kitchens">
+              <span class="video-cat-badge bg-success">Hunger Relief</span>
+              <span class="video-duration-badge"><i class="bi bi-clock me-1"></i>6:30</span>
+              <div class="play-overlay">
+                <div class="play-btn">
+                  <i class="bi bi-play-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h5>Community Kitchens: Hot Meals for Families</h5>
+              <p>Witness shelter chefs turning surplus bakery, dairy, and farm supplies into nutritious hot meals served with dignity and care.</p>
+              <div class="watch-action">
+                <i class="bi bi-play-circle-fill"></i> Watch Video
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 7: Food Waste Awareness -->
+        <div class="col-md-6 col-lg-4 video-filter-item" data-category="waste" data-aos="fade-up" data-aos-delay="100">
+          <div class="video-item-card shadow-sm" onclick="openVideo('7sE1r6q68cM', '\'Best Before\' vs \'Expiry\': Demystifying Date Labels', '/static/assets/videos/food-waste-guide.mp4')">
+            <div class="video-thumb-wrap">
+              <img src="https://images.unsplash.com/photo-1607349913338-fca6f742960f?auto=format&fit=crop&w=900&q=80"
+                alt="Demystifying Date Labels">
+              <span class="video-cat-badge bg-danger">Food Waste</span>
+              <span class="video-duration-badge"><i class="bi bi-clock me-1"></i>5:15</span>
+              <div class="play-overlay">
+                <div class="play-btn">
+                  <i class="bi bi-play-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h5>'Best Before' vs 'Expiry': Demystifying Labels</h5>
+              <p>Why confusing date labels cause billions of safe, edible items to be thrown away into landfills, accelerating greenhouse gases.</p>
+              <div class="watch-action">
+                <i class="bi bi-play-circle-fill"></i> Watch Video
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 8: Kitchen Hacks & Zero Waste -->
+        <div class="col-md-6 col-lg-4 video-filter-item" data-category="tips" data-aos="fade-up" data-aos-delay="200">
+          <div class="video-item-card shadow-sm" onclick="openVideo('Q5s4n9r-JGU', 'Composting 101: Turn Food Scraps Into Black Gold', '/static/assets/videos/kitchen-tips.mp4')">
+            <div class="video-thumb-wrap">
+              <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=900&q=80"
+                alt="Composting 101">
+              <span class="video-cat-badge bg-success">Zero Waste</span>
+              <span class="video-duration-badge"><i class="bi bi-clock me-1"></i>6:15</span>
+              <div class="play-overlay">
+                <div class="play-btn">
+                  <i class="bi bi-play-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h5>Composting 101: Food Scraps to Soil</h5>
+              <p>Step-by-step guide to starting a simple balcony or backyard compost bin for fruit peels, coffee grounds, and vegetable ends.</p>
+              <div class="watch-action">
+                <i class="bi bi-play-circle-fill"></i> Watch Video
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 9: Community Impact -->
+        <div class="col-md-6 col-lg-4 video-filter-item" data-category="community" data-aos="fade-up" data-aos-delay="300">
+          <div class="video-item-card shadow-sm" onclick="openVideo('yK3mzB9bN04', 'Businesses Leading the Zero-Waste Revolution', '/static/assets/videos/community-rescue.mp4')">
+            <div class="video-thumb-wrap">
+              <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80"
+                alt="Businesses Leading Zero Waste">
+              <span class="video-cat-badge bg-primary">Community Impact</span>
+              <span class="video-duration-badge"><i class="bi bi-clock me-1"></i>7:20</span>
+              <div class="play-overlay">
+                <div class="play-btn">
+                  <i class="bi bi-play-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h5>Businesses Leading Zero-Waste</h5>
+              <p>How restaurants, bakeries, and grocery chains partner with technology platforms to eliminate commercial food disposal.</p>
+              <div class="watch-action">
+                <i class="bi bi-play-circle-fill"></i> Watch Video
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Community Section -->
+  <section id="community" class="section-padding bg-light-green">
+    <div class="container text-center">
+      <span class="section-badge" data-aos="fade-up">Our Network</span>
+      <h2 class="mb-5" data-aos="fade-up" data-aos-delay="100">Join the Community</h2>
+
+      <div class="row g-4 mt-2">
+        <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="100">
+          <div class="card card-custom h-100 p-4 text-center">
+            <i class="bi bi-shop text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5>Food Businesses</h5>
+          </div>
+        </div>
+        <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="200">
+          <div class="card card-custom h-100 p-4 text-center">
+            <i class="bi bi-people text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5>NGOs & Charities</h5>
+          </div>
+        </div>
+        <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="300">
+          <div class="card card-custom h-100 p-4 text-center">
+            <i class="bi bi-bicycle text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5>Volunteers</h5>
+          </div>
+        </div>
+        <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="400">
+          <div class="card card-custom h-100 p-4 text-center">
+            <i class="bi bi-house-heart text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5>Families & Customers</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="section-padding">
+    <div class="container">
+      <div class="cta-box" data-aos="zoom-in">
+        <h2 class="mb-4">Rescue Food Instead of Wasting It</h2>
+        <p class="lead mb-4 opacity-75">Join thousands of others making a positive impact on the environment and
+          society.</p>
+        <button class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-success" data-bs-toggle="modal"
+          data-bs-target="#authModal">Join FoodLoop Today</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 mb-4 mb-lg-0">
+          <a class="d-flex align-items-center text-white text-decoration-none mb-3" href="#">
+            <img src="{% static 'assets/foodloop-logo.png' %}" alt="FoodLoop Logo" style="height: 40px; width: auto;">
+          </a>
+          <p class="mb-4 text-secondary">A community-driven platform dedicated to rescuing surplus food, feeding those
+            in need, and drastically reducing global food waste.</p>
+          <div class="d-flex gap-3">
+            <a href="#" class="fs-5"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="fs-5"><i class="bi bi-twitter-x"></i></a>
+            <a href="#" class="fs-5"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="fs-5"><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h5>Platform</h5>
+          <ul class="list-unstyled d-flex flex-column gap-2">
+            <li><a href="#">About Us</a></li>
+            <li><a href="#impact">Our Impact</a></li>
+            <li><a href="#how">How it Works</a></li>
+            <li><a href="#food">Find Food</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h5>Get Involved</h5>
+          <ul class="list-unstyled d-flex flex-column gap-2">
+            <li><a href="#">Donate Food</a></li>
+            <li><a href="#">Volunteer</a></li>
+            <li><a href="#">Partner with Us</a></li>
+            <li><a href="#">Careers</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-4">
+          <h5>Contact</h5>
+          <ul class="list-unstyled d-flex flex-column gap-3">
+            <li class="d-flex"><i class="bi bi-geo-alt me-3 text-success"></i> 123 Green Avenue, Sustainability City, SC
+              12345</li>
+            <li class="d-flex"><i class="bi bi-envelope me-3 text-success"></i> hello@foodloop.org</li>
+            <li class="d-flex"><i class="bi bi-telephone me-3 text-success"></i> +1 (555) 123-4567</li>
+          </ul>
+        </div>
+      </div>
+      <hr class="border-secondary mt-5 mb-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center text-secondary small">
+        <p class="mb-2 mb-md-0">&copy; 2026 FoodLoop · Group 17 · LJ University MCA Sem-3. Together, let's reduce food
+          waste.</p>
+        <div class="d-flex gap-3">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Login/Register Modal -->
+  <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="auth-modal-wrapper">
+
+          <!-- ===== LEFT PANEL ===== -->
+          <div class="auth-left">
+            <div class="logo-icon">
+              <i class="bi bi-arrow-repeat"></i>
+            </div>
+            <h2>Be Part of the FoodLoop</h2>
+            <p class="subtitle">Help us make sure good food reaches people instead of becoming waste.</p>
+            <div class="feature-list">
+              <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Rescue surplus food from local businesses.</span>
+              </div>
+              <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Connect food with NGOs and communities.</span>
+              </div>
+              <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Help reduce unnecessary food waste.</span>
+              </div>
+              <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Become a volunteer and make an impact.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== RIGHT PANEL ===== -->
+          <div class="auth-right">
+            <button type="button" class="close-btn-auth" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+
+            <!-- Navigation Tabs for Switching Login / Register -->
+            <ul class="auth-tab-nav" id="modalAuthTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="modal-tab-login" data-bs-toggle="pill"
+                  data-bs-target="#modal-pane-login" type="button" role="tab" aria-selected="true">Login</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="modal-tab-register" data-bs-toggle="pill"
+                  data-bs-target="#modal-pane-register" type="button" role="tab" aria-selected="false">Register</button>
+              </li>
+            </ul>
+
+            <div class="tab-content" id="modalAuthTabContent">
+
+              <!-- LOGIN TAB -->
+              <div class="tab-pane fade show active" id="modal-pane-login" role="tabpanel" aria-labelledby="modal-tab-login">
+                <h2>Welcome Back</h2>
+                <p class="sub">Login to continue using FoodLoop.</p>
+
+                <form id="modalLoginForm" novalidate>
+                  <!-- Email -->
+                  <div class="form-label-custom">Email Address <span class="required">*</span></div>
+                  <div class="input-group-custom">
+                    <i class="bi bi-envelope input-icon-left"></i>
+                    <input type="email" id="modalLoginEmail" placeholder="Enter your email" required>
+                  </div>
+
+                  <!-- Password -->
+                  <div class="label-row">
+                    <div class="form-label-custom">Password <span class="required">*</span></div>
+                    <a href="#" class="forgot-link">Forgot Password?</a>
+                  </div>
+                  <div class="input-group-custom">
+                    <i class="bi bi-lock input-icon-left"></i>
+                    <input type="password" id="modalLoginPassword" placeholder="Enter your password" required>
+                    <button type="button" class="input-icon-right" onclick="toggleModalPassword('modalLoginPassword', this)">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+
+                  <!-- Remember Me -->
+                  <div class="remember-row">
+                    <input type="checkbox" id="modalRememberMe">
+                    <label for="modalRememberMe">Remember me</label>
+                  </div>
+
+                  <!-- Submit -->
+                  <button type="submit" class="btn-auth-primary">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
+                  </button>
+                </form>
+
+                <div class="bottom-link">
+                  Don't have an account? <a href="javascript:void(0)" onclick="switchModalTab('register')">Create Account</a>
+                </div>
+              </div>
+
+              <!-- REGISTER TAB -->
+              <div class="tab-pane fade" id="modal-pane-register" role="tabpanel" aria-labelledby="modal-tab-register">
+                <h2>Create Account</h2>
+                <p class="sub">Join FoodLoop and help reduce food waste.</p>
+
+                <form id="modalRegisterForm" novalidate>
+
+                  <!-- Name Row -->
+                  <div class="form-row">
+                    <div>
+                      <div class="form-label-custom">First Name <span class="required">*</span></div>
+                      <div class="input-group-custom">
+                        <i class="bi bi-person input-icon-left"></i>
+                        <input type="text" id="modalRegFirstName" placeholder="First name" required>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="form-label-custom">Last Name</div>
+                      <div class="input-group-custom">
+                        <i class="bi bi-person input-icon-left"></i>
+                        <input type="text" id="modalRegLastName" placeholder="Last name">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Email & Phone -->
+                  <div class="form-row">
+                    <div>
+                      <div class="form-label-custom">Email Address <span class="required">*</span></div>
+                      <div class="input-group-custom">
+                        <i class="bi bi-envelope input-icon-left"></i>
+                        <input type="email" id="modalRegEmail" placeholder="you@example.com" required>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="form-label-custom">Mobile Number <span class="required">*</span></div>
+                      <div class="input-group-custom">
+                        <i class="bi bi-phone input-icon-left"></i>
+                        <input type="tel" id="modalRegPhone" placeholder="9876543210" maxlength="10" required>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Role Selection -->
+                  <div class="role-section-title">Select Your Role <span class="required">*</span></div>
+                  <div class="role-grid">
+                    <div class="role-card active" onclick="selectModalRole(this, 'business')">
+                      <i class="bi bi-shop"></i>
+                      <span>Food Business</span>
+                    </div>
+                    <div class="role-card" onclick="selectModalRole(this, 'ngo')">
+                      <i class="bi bi-people"></i>
+                      <span>NGO / Receiver</span>
+                    </div>
+                    <div class="role-card" onclick="selectModalRole(this, 'customer')">
+                      <i class="bi bi-person-fill"></i>
+                      <span>Customer</span>
+                    </div>
+                    <div class="role-card" onclick="selectModalRole(this, 'volunteer')">
+                      <i class="bi bi-bicycle"></i>
+                      <span>Volunteer</span>
+                    </div>
+                  </div>
+                  <input type="hidden" id="modalSelectedRole" value="business">
+
+                  <!-- Address -->
+                  <div class="form-label-custom">Address <span class="required">*</span></div>
+                  <div class="input-group-custom">
+                    <i class="bi bi-geo-alt input-icon-left"></i>
+                    <input type="text" id="modalRegAddress" placeholder="Enter your full address" required>
+                  </div>
+
+                  <!-- City, State, Pincode -->
+                  <div class="form-row-3">
+                    <div>
+                      <div class="form-label-custom">City <span class="required">*</span></div>
+                      <input type="text" class="input-no-icon" id="modalRegCity" placeholder="Ahmedabad" required>
+                    </div>
+                    <div>
+                      <div class="form-label-custom">State <span class="required">*</span></div>
+                      <input type="text" class="input-no-icon" id="modalRegState" placeholder="Gujarat" required>
+                    </div>
+                    <div>
+                      <div class="form-label-custom">Pincode <span class="required">*</span></div>
+                      <input type="text" class="input-no-icon" id="modalRegPincode" placeholder="380001" maxlength="6" required>
+                    </div>
+                  </div>
+
+                  <!-- Password Row -->
+                  <div class="form-row">
+                    <div>
+                      <div class="form-label-custom">Password <span class="required">*</span></div>
+                      <div class="input-group-custom">
+                        <i class="bi bi-lock input-icon-left"></i>
+                        <input type="password" id="modalRegPassword" placeholder="Create password" required oninput="checkModalStrength()">
+                        <button type="button" class="input-icon-right" onclick="toggleModalPassword('modalRegPassword', this)">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="form-label-custom">Confirm Password <span class="required">*</span></div>
+                      <div class="input-group-custom">
+                        <i class="bi bi-lock input-icon-left"></i>
+                        <input type="password" id="modalRegConfirmPassword" placeholder="Confirm password" required>
+                        <button type="button" class="input-icon-right" onclick="toggleModalPassword('modalRegConfirmPassword', this)">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Password Strength -->
+                  <div class="strength-bar-container">
+                    <div class="strength-bar" id="modalStrengthBar"></div>
+                  </div>
+                  <div class="strength-label" id="modalStrengthLabel">Password strength</div>
+
+                  <!-- Terms -->
+                  <div class="terms-row">
+                    <input type="checkbox" id="modalTermsCheck" required>
+                    <label for="modalTermsCheck">
+                      I agree to FoodLoop's <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a>.
+                    </label>
+                  </div>
+
+                  <!-- Submit -->
+                  <button type="submit" class="btn-auth-primary">
+                    <i class="bi bi-person-plus"></i> Create FoodLoop Account
+                  </button>
+                </form>
+
+                <div class="bottom-link">
+                  Already have an account? <a href="javascript:void(0)" onclick="switchModalTab('login')">Login</a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-toast-container" id="modalToastContainer"></div>
+
+  <!-- Video Modal -->
+  <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content bg-dark border-0 shadow-lg overflow-hidden" style="border-radius: 1rem;">
+        <div class="modal-header border-0 py-3 px-4 d-flex align-items-center justify-content-between" style="background: #111;">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success rounded-pill px-2 py-1 small">
+              <i class="bi bi-play-circle-fill me-1"></i> Playing Now
+            </span>
+            <h5 class="modal-title text-white fw-bold mb-0 text-truncate" id="videoModalTitle" style="max-width: 440px;">Video</h5>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <a id="externalVideoLink" href="https://www.youtube.com" target="_blank" class="btn btn-sm btn-outline-light rounded-pill px-3" title="Open full video in YouTube">
+              <i class="bi bi-youtube text-danger me-1"></i> Watch on YouTube
+            </a>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="modal-body p-0 bg-black">
+          <div class="ratio ratio-16x9 position-relative">
+            <!-- Native HTML5 Video Player: Plays smoothly on file://, localhost and mobile with no Error 153 -->
+            <video id="html5VideoPlayer" class="w-100 h-100" controls autoplay playsinline style="object-fit: contain; background: #000;">
+              <source id="videoSourceMp4" src="{% static 'assets/videos/food-rescue.mp4' %}" type="video/mp4">
+              Your browser does not support HTML5 video.
+            </video>
+            <!-- Iframe fallback for web servers -->
+            <iframe id="videoIframe" src="" title="YouTube video" allowfullscreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              referrerpolicy="strict-origin-when-cross-origin" style="display: none; width: 100%; height: 100%; border: none;"></iframe>
+          </div>
+        </div>
+        <div class="modal-footer border-0 py-2 px-4 d-flex justify-content-between align-items-center" style="background: #141414;">
+          <div class="small text-secondary">
+            <i class="bi bi-shield-check text-success me-1"></i> FoodLoop Verified Video · High Definition
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5.3.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- AOS JS -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+  <script>
+    // Initialize AOS
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 100
+    });
+
+    // Dark Mode Toggle
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    const darkModeIcon = document.getElementById('darkModeIcon');
+    const htmlEl = document.documentElement;
+
+    // Check local storage for preference
+    const savedTheme = localStorage.getItem('foodloop-theme');
+    if (savedTheme === 'dark') {
+      htmlEl.setAttribute('data-bs-theme', 'dark');
+      darkModeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+    }
+
+    darkModeBtn.addEventListener('click', () => {
+      const currentTheme = htmlEl.getAttribute('data-bs-theme');
+      if (currentTheme === 'light') {
+        htmlEl.setAttribute('data-bs-theme', 'dark');
+        localStorage.setItem('foodloop-theme', 'dark');
+        darkModeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+      } else {
+        htmlEl.setAttribute('data-bs-theme', 'light');
+        localStorage.setItem('foodloop-theme', 'light');
+        darkModeIcon.classList.replace('bi-sun-fill', 'bi-moon-fill');
+      }
+    });
+
+    // Mobile Navbar Auto-close on link click
+    const navLinks = document.querySelectorAll('.nav-link-item .nav-link');
+    const navbarCollapse = document.getElementById('navbarNav');
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (navbarCollapse.classList.contains('show')) {
+          const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+          bsCollapse.hide();
+        }
+      });
+    });
+
+    // Counter Animation
+    const counters = document.querySelectorAll('.counter');
+    const animateCounters = (entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const counter = entry.target;
+          const target = parseFloat(counter.getAttribute('data-target'));
+          const duration = 2000; // ms
+          const start = performance.now();
+
+          const updateCounter = (currentTime) => {
+            const elapsed = currentTime - start;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // ease out quad
+            const easeProgress = progress * (2 - progress);
+            const currentVal = (easeProgress * target).toFixed(target % 1 !== 0 ? 1 : 0);
+
+            counter.innerText = currentVal;
+
+            if (progress < 1) {
+              requestAnimationFrame(updateCounter);
+            } else {
+              counter.innerText = target;
+            }
+          };
+
+          requestAnimationFrame(updateCounter);
+          observer.unobserve(counter);
+        }
+      });
+    };
+
+    const counterObserver = new IntersectionObserver(animateCounters, {threshold: 0.5});
+    counters.forEach(counter => counterObserver.observe(counter));
+
+    // Video Modal Handler with Native Live Playback Support
+    const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+    const videoIframe = document.getElementById('videoIframe');
+    const videoModalTitle = document.getElementById('videoModalTitle');
+    const html5VideoPlayer = document.getElementById('html5VideoPlayer');
+    const videoSourceMp4 = document.getElementById('videoSourceMp4');
+    const externalVideoLink = document.getElementById('externalVideoLink');
+
+    // Video mapping for reliable in-app playback
+    const videoMap = {
+      '6RlxySFrkIM': '/static/assets/videos/food-waste-guide.mp4',
+      'dPUk1URTWOQ': '/static/assets/videos/food-rescue.mp4',
+      'WREXBUZBrS8': '/static/assets/videos/food-waste-guide.mp4',
+      'l4n6tZ35eR4': '/static/assets/videos/community-rescue.mp4',
+      'ishA6kry8fs': '/static/assets/videos/kitchen-tips.mp4',
+      'G9bL3R59M4E': '/static/assets/videos/food-rescue.mp4',
+      '7sE1r6q68cM': '/static/assets/videos/food-waste-guide.mp4',
+      'Q5s4n9r-JGU': '/static/assets/videos/kitchen-tips.mp4',
+      'yK3mzB9bN04': '/static/assets/videos/community-rescue.mp4'
+    };
+
+    function openVideo(videoId, title, customVideoUrl) {
+      if (videoModalTitle) videoModalTitle.innerText = title;
+
+      // Update external link for direct YouTube watching
+      if (externalVideoLink) {
+        externalVideoLink.href = `https://www.youtube.com/watch?v=${videoId}`;
+      }
+
+      // Pick appropriate local/reliable video file
+      const sourceUrl = customVideoUrl || videoMap[videoId] || '/static/assets/videos/food-rescue.mp4';
+
+      if (html5VideoPlayer && videoSourceMp4) {
+        // Set up HTML5 video player
+        videoSourceMp4.src = sourceUrl;
+        html5VideoPlayer.load();
+        html5VideoPlayer.style.display = 'block';
+
+        if (videoIframe) {
+          videoIframe.style.display = 'none';
+          videoIframe.src = '';
+        }
+
+        // Show modal and start playing
+        videoModal.show();
+
+        setTimeout(() => {
+          const playPromise = html5VideoPlayer.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              html5VideoPlayer.muted = false;
+            });
+          }
+        }, 300);
+      } else if (videoIframe) {
+        videoIframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
+        videoModal.show();
+      }
+    }
+
+    document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
+      if (html5VideoPlayer) {
+        html5VideoPlayer.pause();
+        html5VideoPlayer.currentTime = 0;
+      }
+      if (videoIframe) {
+        videoIframe.src = '';
+      }
+    });
+
+    // Video Category Filter
+    function filterVideos(category, btn) {
+      document.querySelectorAll('.video-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const items = document.querySelectorAll('.video-filter-item');
+      items.forEach(item => {
+        if (category === 'all' || item.getAttribute('data-category') === category) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // =========================================
+    // Auth Modal Logic (Same as login.html & register.html)
+    // =========================================
+    function switchModalTab(tabName) {
+      if (tabName === 'register') {
+        const regTab = document.getElementById('modal-tab-register');
+        if (regTab) bootstrap.Tab.getOrCreateInstance(regTab).show();
+      } else {
+        const loginTab = document.getElementById('modal-tab-login');
+        if (loginTab) bootstrap.Tab.getOrCreateInstance(loginTab).show();
+      }
+    }
+
+    // Toggle password visibility
+    function toggleModalPassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) icon.classList.replace('bi-eye', 'bi-eye-slash');
+      } else {
+        input.type = 'password';
+        if (icon) icon.classList.replace('bi-eye-slash', 'bi-eye');
+      }
+    }
+
+    // Role selection
+    function selectModalRole(element, role) {
+      document.querySelectorAll('#authModal .role-card').forEach(c => c.classList.remove('active'));
+      element.classList.add('active');
+      document.getElementById('modalSelectedRole').value = role;
+    }
+
+    // Password strength checker
+    function checkModalStrength() {
+      const pw = document.getElementById('modalRegPassword').value;
+      const bar = document.getElementById('modalStrengthBar');
+      const label = document.getElementById('modalStrengthLabel');
+      if (!bar || !label) return;
+      let strength = 0;
+
+      if (pw.length >= 8) strength += 25;
+      if (pw.match(/[a-z]+/)) strength += 25;
+      if (pw.match(/[A-Z]+/)) strength += 25;
+      if (pw.match(/[0-9]+/) || pw.match(/[^a-zA-Z0-9]+/)) strength += 25;
+
+      bar.style.width = strength + '%';
+
+      if (strength <= 25) {
+        bar.style.background = '#dc3545';
+        label.textContent = 'Password strength: Weak';
+      } else if (strength <= 50) {
+        bar.style.background = '#ffc107';
+        label.textContent = 'Password strength: Fair';
+      } else if (strength <= 75) {
+        bar.style.background = '#0dcaf0';
+        label.textContent = 'Password strength: Good';
+      } else {
+        bar.style.background = '#198754';
+        label.textContent = 'Password strength: Strong';
+      }
+    }
+
+    // Modal Toast notification
+    function showModalToast(type, title, message) {
+      const container = document.getElementById('modalToastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'modal-toast-msg modal-toast-' + type;
+      toast.innerHTML = '<strong>' + title + '</strong><br>' + message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    // Modal Login Form submit
+    document.getElementById('modalLoginForm')?.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const email = document.getElementById('modalLoginEmail').value.trim();
+      const password = document.getElementById('modalLoginPassword').value.trim();
+
+      if (!email || !password) {
+        showModalToast('warning', 'Fields Required', 'Please fill in all required fields.');
+        return;
+      }
+
+      // Demo login routing matching login.html
+      const roleMap = {
+        'admin@foodloop.demo': 'dashboard-admin.html',
+        'business@foodloop.demo': 'dashboard-business.html',
+        'ngo@foodloop.demo': 'dashboard-ngo.html',
+        'volunteer@foodloop.demo': 'dashboard-volunteer.html',
+        'customer@foodloop.demo': 'dashboard-customer.html'
+      };
+
+      if (roleMap[email]) {
+        showModalToast('success', 'Login Successful', 'Redirecting to dashboard...');
+        setTimeout(() => window.location.href = roleMap[email], 1000);
+      } else {
+        showModalToast('success', 'Login Successful', 'Welcome back!');
+        setTimeout(() => {
+          const authModalEl = document.getElementById('authModal');
+          const modalInstance = bootstrap.Modal.getInstance(authModalEl);
+          if (modalInstance) modalInstance.hide();
+        }, 1200);
+      }
+    });
+
+    // Modal Register Form submit
+    document.getElementById('modalRegisterForm')?.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const fn = document.getElementById('modalRegFirstName').value.trim();
+      const email = document.getElementById('modalRegEmail').value.trim();
+      const phone = document.getElementById('modalRegPhone').value.trim();
+      const pw = document.getElementById('modalRegPassword').value;
+      const cpw = document.getElementById('modalRegConfirmPassword').value;
+      const terms = document.getElementById('modalTermsCheck').checked;
+
+      if (!fn || !email || !phone) {
+        showModalToast('warning', 'Fields Required', 'Please fill in all required fields.');
+        return;
+      }
+
+      if (pw.length < 6) {
+        showModalToast('error', 'Weak Password', 'Password must be at least 6 characters.');
+        return;
+      }
+
+      if (pw !== cpw) {
+        showModalToast('error', 'Password Mismatch', 'Passwords do not match.');
+        return;
+      }
+
+      if (!terms) {
+        showModalToast('warning', 'Terms Required', 'Please agree to the Terms & Conditions.');
+        return;
+      }
+
+      showModalToast('success', 'Account Created', 'Your account has been created! Please log in.');
+      setTimeout(() => {
+        switchModalTab('login');
+        const loginEmail = document.getElementById('modalLoginEmail');
+        if (loginEmail) {
+          loginEmail.value = email;
+          document.getElementById('modalLoginPassword')?.focus();
+        }
+      }, 1200);
+    });
+  </script>
+</body>
+
+</html>

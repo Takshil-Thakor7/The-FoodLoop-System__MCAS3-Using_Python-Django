@@ -1,0 +1,1169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Delivery Tracking – FoodLoop</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Leaflet CSS for Live Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root {
+      --fl-primary: #198754;
+      --fl-primary-dark: #12663f;
+      --fl-primary-light: #eaf7ef;
+      --fl-cream: #fffaf2;
+      --fl-dark: #18332a;
+      --fl-text-muted: #60706a;
+      --fl-bg-color: #f8faf9;
+      --fl-text-color: #212529;
+      --fl-card-bg: #ffffff;
+      --fl-border-color: #e5e7eb;
+    }
+
+    [data-bs-theme="dark"] {
+      --fl-primary: #198754;
+      --fl-primary-dark: #12663f;
+      --fl-primary-light: #1a2a22;
+      --fl-cream: #18201d;
+      --fl-dark: #f8f9fa;
+      --fl-text-muted: #aab6b1;
+      --fl-bg-color: #121212;
+      --fl-text-color: #e0e0e0;
+      --fl-card-bg: #1e1e1e;
+      --fl-border-color: #333333;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--fl-bg-color);
+      color: var(--fl-text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Logo */
+    .foodloop-logo {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+      margin-right: 8px;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: var(--fl-card-bg);
+      border-bottom: 1px solid var(--fl-border-color);
+    }
+
+    .nav-link {
+      font-weight: 500;
+      color: var(--fl-text-color) !important;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--fl-primary) !important;
+    }
+
+    .dark-mode-toggle {
+      background: none;
+      border: none;
+      color: var(--fl-text-color);
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    /* Search Hero */
+    .track-hero {
+      background: linear-gradient(135deg, rgba(24, 51, 42, 0.95), rgba(18, 102, 63, 0.92)),
+        url('https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1920&q=80') center/cover;
+      color: white;
+      padding: 50px 0 45px;
+      text-align: center;
+    }
+
+    .search-box-wrap {
+      max-width: 680px;
+      margin: 20px auto 0;
+      position: relative;
+    }
+
+    .search-input-group {
+      display: flex;
+      background: #ffffff;
+      border-radius: 50rem;
+      padding: 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .search-input-group input {
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border-radius: 50rem;
+      flex: 1;
+      outline: none;
+      color: #333;
+    }
+
+    .search-input-group button {
+      border-radius: 50rem;
+      padding: 10px 28px;
+      font-weight: 700;
+    }
+
+    .quick-pill {
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 50rem;
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .quick-pill:hover,
+    .quick-pill.active {
+      background: #ffffff;
+      color: #12663f;
+    }
+
+    /* Cards */
+    .card-track {
+      background-color: var(--fl-card-bg);
+      border: 1px solid var(--fl-border-color);
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    /* Progress Stepper */
+    .stepper-container {
+      padding: 24px 20px 10px;
+    }
+
+    .stepper-track {
+      display: flex;
+      position: relative;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .stepper-progress-bar {
+      position: absolute;
+      top: 22px;
+      left: 35px;
+      right: 35px;
+      height: 4px;
+      background-color: var(--fl-border-color);
+      z-index: 1;
+    }
+
+    .stepper-progress-fill {
+      height: 100%;
+      background-color: var(--fl-primary);
+      width: 75%;
+      transition: width 0.6s ease;
+    }
+
+    .step-item {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      width: 120px;
+    }
+
+    .step-node {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background-color: var(--fl-card-bg);
+      border: 3px solid var(--fl-border-color);
+      color: var(--fl-text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .step-item.completed .step-node {
+      background-color: var(--fl-primary);
+      border-color: var(--fl-primary);
+      color: #fff;
+    }
+
+    .step-item.active .step-node {
+      background-color: var(--fl-primary);
+      border-color: var(--fl-primary);
+      color: #fff;
+      box-shadow: 0 0 0 6px rgba(25, 135, 84, 0.25);
+      animation: pulse-step 2s infinite;
+    }
+
+    @keyframes pulse-step {
+      0% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(25, 135, 84, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+      }
+    }
+
+    .step-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--fl-text-color);
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+
+    .step-time {
+      font-size: 0.72rem;
+      color: var(--fl-text-muted);
+    }
+
+    /* Live Map */
+    #liveMap {
+      height: 380px;
+      width: 100%;
+      border-radius: 0.85rem;
+      z-index: 1;
+    }
+
+    .map-controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px 16px;
+      background-color: var(--fl-card-bg);
+      border-top: 1px solid var(--fl-border-color);
+    }
+
+    /* Live Pulse Badge */
+    .live-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #10b981;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: live-pulse 1.8s infinite;
+      margin-right: 6px;
+    }
+
+    @keyframes live-pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+
+    /* Volunteer Profile Card */
+    .volunteer-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2.5px solid var(--fl-primary);
+    }
+
+    /* OTP Verification Card */
+    .otp-display-box {
+      background: linear-gradient(135deg, rgba(25, 135, 84, 0.08), rgba(25, 135, 84, 0.15));
+      border: 1.5px dashed var(--fl-primary);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .otp-code {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: 6px;
+      color: var(--fl-primary);
+    }
+
+    /* Timeline logs */
+    .timeline-log {
+      position: relative;
+      padding-left: 24px;
+      border-left: 2px solid var(--fl-border-color);
+      margin-left: 10px;
+    }
+
+    .timeline-log-item {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .timeline-log-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-log-dot {
+      position: absolute;
+      left: -31px;
+      top: 4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: var(--fl-primary);
+      border: 2px solid var(--fl-card-bg);
+    }
+
+    .timeline-log-time {
+      font-size: 0.75rem;
+      color: var(--fl-text-muted);
+      font-weight: 600;
+    }
+
+    .timeline-log-text {
+      font-size: 0.88rem;
+      color: var(--fl-text-color);
+      font-weight: 500;
+    }
+
+    /* Leaflet marker styling */
+    .custom-map-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon-donor {
+      background: #d97706;
+      border: 2px solid #fff;
+    }
+
+    .icon-volunteer {
+      background: #198754;
+      border: 2px solid #fff;
+      animation: pulse-step 2s infinite;
+    }
+
+    .icon-ngo {
+      background: #2563eb;
+      border: 2px solid #fff;
+    }
+
+    @media (max-width: 768px) {
+      .stepper-track {
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+      .step-item {
+        min-width: 90px;
+      }
+      .stepper-progress-bar {
+        display: none;
+      }
+      #liveMap {
+        height: 280px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sticky Navbar -->
+  <nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="index.html">
+        <img src="{% static 'assets/foodloop-logo.png' %}" alt="FoodLoop Logo" class="foodloop-logo">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#food">Find Food</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#how">How It Works</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#videos">Videos</a></li>
+          <li class="nav-item"><a class="nav-link active fw-bold" href="track.html">Tracking</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#community">Community</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+          <button class="dark-mode-toggle" id="darkModeBtn" aria-label="Toggle dark mode">
+            <i class="bi bi-moon-fill" id="darkModeIcon"></i>
+          </button>
+          <a href="login.html" class="btn btn-primary rounded-pill px-4">Dashboard / Login</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Search Hero -->
+  <section class="track-hero">
+    <div class="container">
+      <h1 class="fw-bold mb-2">Live Food Rescue Tracking</h1>
+      <p class="opacity-90 mb-3" style="max-width: 600px; margin: 0 auto; font-size: 0.95rem;">
+        Track live status, volunteer location, and temperature-safe handover from restaurant to community plate.
+      </p>
+
+      <div class="search-box-wrap">
+        <form id="trackingForm" class="search-input-group" onsubmit="handleSearch(event)">
+          <input type="text" id="trackingInput" placeholder="Enter Tracking ID (e.g. #R001, #FLD-8821)" value="#R001" required>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search me-1"></i> Track Order
+          </button>
+        </form>
+      </div>
+
+      <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+        <span class="text-white-50 small align-self-center me-1">Demo Orders:</span>
+        <button type="button" class="quick-pill active" onclick="loadOrder('R001', this)">
+          <span class="live-dot"></span> #R001 (Out for Delivery)
+        </button>
+        <button type="button" class="quick-pill" onclick="loadOrder('FLD8821', this)">
+          <i class="bi bi-box-seam"></i> #FLD-8821 (Picked Up)
+        </button>
+        <button type="button" class="quick-pill" onclick="loadOrder('FLD9042', this)">
+          <i class="bi bi-clock-history"></i> #FLD-9042 (Volunteer Assigned)
+        </button>
+        <button type="button" class="quick-pill" onclick="loadOrder('R002', this)">
+          <i class="bi bi-check-circle"></i> #R002 (Delivered)
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Tracking Details -->
+  <main class="container my-4 flex-grow-1">
+
+    <!-- Top Status Banner Card -->
+    <div class="card-track p-3 p-md-4">
+      <div class="row align-items-center g-3">
+        <div class="col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-success py-2 px-3 fs-6 rounded-pill" id="statusBadge">
+              <span class="live-dot"></span> Out for Delivery
+            </span>
+            <span class="text-muted small" id="orderIdText">Tracking ID: <strong>#R001</strong></span>
+          </div>
+          <h3 class="fw-bold mb-1" id="foodTitle">Paneer Butter Masala + Jeera Rice (8 kg)</h3>
+          <p class="text-muted mb-0 small" id="subStatusText">
+            <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+            En route from <strong>Hotel Rajmahal (SG Highway)</strong> to <strong>Hope NGO (Navrangpura)</strong>
+          </p>
+        </div>
+
+        <div class="col-md-6 text-md-end">
+          <div class="d-inline-block text-start p-3 rounded-3" style="background-color: var(--fl-primary-light);">
+            <div class="small fw-bold text-success text-uppercase" style="letter-spacing: 0.5px;">Estimated Arrival</div>
+            <div class="fs-3 fw-bold text-success" id="etaTime">Today, 3:15 PM</div>
+            <div class="small text-muted" id="etaCountdown">Approx. 12 minutes remaining · 1.8 km to go</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi-step Visual Timeline -->
+      <hr class="my-4">
+      <div class="stepper-container">
+        <div class="stepper-track">
+          <div class="stepper-progress-bar">
+            <div class="stepper-progress-fill" id="stepperFill" style="width: 75%;"></div>
+          </div>
+
+          <!-- Step 1 -->
+          <div class="step-item completed" id="step1">
+            <div class="step-node"><i class="bi bi-check-lg"></i></div>
+            <div class="step-title">Order Placed</div>
+            <div class="step-time" id="step1Time">2:30 PM</div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step-item completed" id="step2">
+            <div class="step-node"><i class="bi bi-person-check-fill"></i></div>
+            <div class="step-title">Volunteer Assigned</div>
+            <div class="step-time" id="step2Time">2:35 PM</div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step-item completed" id="step3">
+            <div class="step-node"><i class="bi bi-box-seam-fill"></i></div>
+            <div class="step-title">Food Picked Up</div>
+            <div class="step-time" id="step3Time">2:50 PM</div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="step-item active" id="step4">
+            <div class="step-node"><i class="bi bi-bicycle"></i></div>
+            <div class="step-title">On the Way</div>
+            <div class="step-time" id="step4Time">3:02 PM</div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="step-item" id="step5">
+            <div class="step-node"><i class="bi bi-house-heart-fill"></i></div>
+            <div class="step-title">Delivered</div>
+            <div class="step-time" id="step5Time">Est. 3:15 PM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2-Column Content: Map & Details -->
+    <div class="row g-4">
+
+      <!-- LEFT: Live Map & Status Logs -->
+      <div class="col-lg-8">
+        <!-- Live GPS Map Card -->
+        <div class="card-track p-0">
+          <div class="p-3 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0">
+              <i class="bi bi-map text-primary me-2"></i>Live Route & Volunteer GPS
+            </h5>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">
+              <span class="live-dot"></span> Live GPS Active
+            </span>
+          </div>
+
+          <!-- Interactive Leaflet Map -->
+          <div id="liveMap"></div>
+
+          <div class="map-controls-bar">
+            <div class="small text-muted">
+              <i class="bi bi-speedometer2 me-1"></i> Speed: <strong>28 km/h</strong> | Battery: <strong>84%</strong>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" onclick="recenterMap()">
+                <i class="bi bi-crosshair me-1"></i> Recenter
+              </button>
+              <button class="btn btn-sm btn-success" id="simBtn" onclick="toggleSimulation()">
+                <i class="bi bi-play-fill me-1"></i> Simulate Movement
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Activity Log -->
+        <div class="card-track p-4">
+          <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>Activity Milestones</h5>
+          <div class="timeline-log" id="timelineLogs">
+            <div class="timeline-log-item">
+              <div class="timeline-log-dot"></div>
+              <div class="timeline-log-time">3:08 PM · Live Location</div>
+              <div class="timeline-log-text">Volunteer Ravi crossed Commerce Six Roads, moving towards Navrangpura.</div>
+            </div>
+            <div class="timeline-log-item">
+              <div class="timeline-log-dot"></div>
+              <div class="timeline-log-time">3:02 PM · In Transit</div>
+              <div class="timeline-log-text">Departed Hotel Rajmahal with insulated thermal food containers.</div>
+            </div>
+            <div class="timeline-log-item">
+              <div class="timeline-log-dot"></div>
+              <div class="timeline-log-time">2:50 PM · Quality Check Verified</div>
+              <div class="timeline-log-text">Surplus food hygiene and safety check verified (Temperature recorded: 68°C).</div>
+            </div>
+            <div class="timeline-log-item">
+              <div class="timeline-log-dot"></div>
+              <div class="timeline-log-time">2:35 PM · Volunteer Dispatched</div>
+              <div class="timeline-log-text">Volunteer Ravi Shah accepted the pickup request and reached pickup site.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Volunteer, Security OTP & Addresses -->
+      <div class="col-lg-4">
+
+        <!-- Security Handover OTP Card -->
+        <div class="card-track p-4 mb-4">
+          <h6 class="fw-bold text-uppercase text-muted small mb-2">Delivery Handover Security</h6>
+          <div class="otp-display-box mb-3">
+            <div class="small text-muted mb-1">Share this OTP with Volunteer at dropoff</div>
+            <div class="otp-code" id="otpCode">5829</div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-shield-check text-success me-1"></i>
+            Ensures edible surplus food reaches the intended beneficiary securely without unauthorized diversion.
+          </p>
+        </div>
+
+        <!-- Assigned Volunteer Card -->
+        <div class="card-track p-4 mb-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h6 class="fw-bold text-uppercase text-muted small mb-0">Delivery Hero</h6>
+            <span class="badge bg-success bg-opacity-10 text-success fw-bold">Verified</span>
+          </div>
+
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+              alt="Volunteer" class="volunteer-avatar" id="volAvatar">
+            <div>
+              <h5 class="fw-bold mb-1" id="volName">Ravi Shah</h5>
+              <div class="text-warning small mb-1">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+                <span class="text-muted ms-1" id="volRating">4.9 (142 Deliveries)</span>
+              </div>
+              <div class="small text-muted" id="volVehicle">
+                <i class="bi bi-bicycle me-1"></i> Honda Activa · GJ 01 AB 1234
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-success flex-grow-1" onclick="callVolunteer()">
+              <i class="bi bi-telephone-fill me-1"></i> Call
+            </button>
+            <button class="btn btn-primary flex-grow-1" onclick="chatVolunteer()">
+              <i class="bi bi-chat-dots-fill me-1"></i> Message
+            </button>
+          </div>
+        </div>
+
+        <!-- Food & Safety Inspection Details -->
+        <div class="card-track p-4 mb-4">
+          <h6 class="fw-bold text-uppercase text-muted small mb-3">Food & Safety Standards</h6>
+          <ul class="list-unstyled d-flex flex-column gap-2 small mb-3">
+            <li class="d-flex justify-content-between">
+              <span class="text-muted">Quantity:</span>
+              <strong id="foodQty">8 kg (~25 Portions)</strong>
+            </li>
+            <li class="d-flex justify-content-between">
+              <span class="text-muted">Packaging:</span>
+              <strong id="foodPack">Sealed Thermal Box</strong>
+            </li>
+            <li class="d-flex justify-content-between">
+              <span class="text-muted">Temp Check:</span>
+              <span class="badge bg-success-subtle text-success fw-bold" id="foodTemp">68°C (Optimal Hot)</span>
+            </li>
+            <li class="d-flex justify-content-between">
+              <span class="text-muted">Shelf Life Window:</span>
+              <strong class="text-danger" id="foodExpiry">3 hrs remaining</strong>
+            </li>
+          </ul>
+          <div class="p-2 rounded-2 bg-light small text-muted">
+            <i class="bi bi-check-circle-fill text-success me-1"></i> Inspected under FoodLoop Safety Protocol v2.4.
+          </div>
+        </div>
+
+        <!-- Locations Card -->
+        <div class="card-track p-4">
+          <h6 class="fw-bold text-uppercase text-muted small mb-3">Route Details</h6>
+
+          <div class="d-flex gap-3 mb-3">
+            <div class="text-warning fs-5"><i class="bi bi-geo-alt-fill"></i></div>
+            <div>
+              <div class="small text-muted">Pickup Location</div>
+              <strong class="d-block" id="donorName">Hotel Rajmahal</strong>
+              <div class="small text-muted" id="donorAddr">Shop 14, S.G. Highway, Bodakdev, Ahmedabad</div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3">
+            <div class="text-primary fs-5"><i class="bi bi-flag-fill"></i></div>
+            <div>
+              <div class="small text-muted">Destination Location</div>
+              <strong class="d-block" id="receiverName">Hope Foundation & Community Centre</strong>
+              <div class="small text-muted" id="receiverAddr">Sector 5, Navrangpura, Ahmedabad</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white py-4 mt-auto">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+      <div class="d-flex align-items-center gap-2">
+        <span class="fw-bold text-success fs-5">FoodLoop</span>
+        <span class="text-secondary">· Real-Time Surplus Food Rescue Tracking</span>
+      </div>
+      <div class="d-flex gap-3 small text-secondary">
+        <a href="index.html" class="text-secondary text-decoration-none">Home</a>
+        <a href="track.html" class="text-secondary text-decoration-none">Tracking</a>
+        <a href="login.html" class="text-secondary text-decoration-none">Login</a>
+        <a href="register.html" class="text-secondary text-decoration-none">Register</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 99999;">
+    <div id="actionToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastText">Action triggered successfully.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // =========================================
+    // Dark Mode Support
+    // =========================================
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    const darkModeIcon = document.getElementById('darkModeIcon');
+    const htmlEl = document.documentElement;
+
+    const savedTheme = localStorage.getItem('foodloop-theme');
+    if (savedTheme === 'dark') {
+      htmlEl.setAttribute('data-bs-theme', 'dark');
+      if (darkModeIcon) darkModeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+    }
+
+    if (darkModeBtn) {
+      darkModeBtn.addEventListener('click', () => {
+        const currentTheme = htmlEl.getAttribute('data-bs-theme');
+        if (currentTheme === 'light') {
+          htmlEl.setAttribute('data-bs-theme', 'dark');
+          localStorage.setItem('foodloop-theme', 'dark');
+          if (darkModeIcon) darkModeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+        } else {
+          htmlEl.setAttribute('data-bs-theme', 'light');
+          localStorage.setItem('foodloop-theme', 'light');
+          if (darkModeIcon) darkModeIcon.classList.replace('bi-sun-fill', 'bi-moon-fill');
+        }
+      });
+    }
+
+    // =========================================
+    // Mock Tracking Database
+    // =========================================
+    const ordersDB = {
+      'R001': {
+        id: '#R001',
+        title: 'Paneer Butter Masala + Jeera Rice (8 kg)',
+        status: 'Out for Delivery',
+        statusType: 'success',
+        subStatus: 'En route from Hotel Rajmahal to Hope Foundation',
+        etaTime: 'Today, 3:15 PM',
+        etaCountdown: 'Approx. 12 minutes remaining · 1.8 km to go',
+        fill: '75%',
+        activeStep: 4,
+        stepTimes: ['2:30 PM', '2:35 PM', '2:50 PM', '3:02 PM', 'Est. 3:15 PM'],
+        otp: '5829',
+        vol: {
+          name: 'Ravi Shah',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+          rating: '4.9 (142 Deliveries)',
+          vehicle: 'Honda Activa · GJ 01 AB 1234'
+        },
+        food: {
+          qty: '8 kg (~25 Portions)',
+          pack: 'Sealed Thermal Box',
+          temp: '68°C (Optimal Hot)',
+          expiry: '3 hrs remaining'
+        },
+        donor: { name: 'Hotel Rajmahal', addr: 'Shop 14, S.G. Highway, Bodakdev, Ahmedabad', coords: [23.0375, 72.5122] },
+        receiver: { name: 'Hope Foundation & Community Centre', addr: 'Sector 5, Navrangpura, Ahmedabad', coords: [23.0401, 72.5604] },
+        volunteerPos: [23.0388, 72.5410],
+        logs: [
+          { time: '3:08 PM · Live Location', text: 'Volunteer Ravi crossed Commerce Six Roads, moving towards Navrangpura.' },
+          { time: '3:02 PM · In Transit', text: 'Departed Hotel Rajmahal with insulated thermal food containers.' },
+          { time: '2:50 PM · Quality Check Verified', text: 'Surplus food hygiene verified (Temperature recorded: 68°C).' },
+          { time: '2:35 PM · Volunteer Dispatched', text: 'Volunteer Ravi Shah accepted pickup request and arrived at Hotel Rajmahal.' }
+        ]
+      },
+
+      'FLD8821': {
+        id: '#FLD-8821',
+        title: 'Fresh Veg Biryani & Curd Packets (15 kg)',
+        status: 'Food Picked Up',
+        statusType: 'warning',
+        subStatus: 'Picked up from Grand Taj Banquet, packing into vehicle',
+        etaTime: 'Today, 3:35 PM',
+        etaCountdown: 'Approx. 25 minutes remaining · 3.4 km to go',
+        fill: '50%',
+        activeStep: 3,
+        stepTimes: ['2:45 PM', '2:55 PM', '3:10 PM', 'Est. 3:20 PM', 'Est. 3:35 PM'],
+        otp: '4419',
+        vol: {
+          name: 'Sneha Patel',
+          avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
+          rating: '5.0 (89 Deliveries)',
+          vehicle: 'TVS Jupiter · GJ 01 CD 5678'
+        },
+        food: {
+          qty: '15 kg (~45 Portions)',
+          pack: 'Food-Grade Stainless Containers',
+          temp: '65°C (Warm & Safe)',
+          expiry: '4 hrs remaining'
+        },
+        donor: { name: 'Grand Taj Banquet Hall', addr: 'Prahlad Nagar, Ahmedabad', coords: [23.0118, 72.5085] },
+        receiver: { name: 'Mother Teresa Child Care Home', addr: 'Paldi, Ahmedabad', coords: [23.0150, 72.5620] },
+        volunteerPos: [23.0125, 72.5110],
+        logs: [
+          { time: '3:10 PM · Picked Up', text: 'Volunteer Sneha completed packing from Grand Taj Banquet.' },
+          { time: '2:55 PM · Volunteer Reached', text: 'Volunteer arrived at donor site for inspection.' },
+          { time: '2:45 PM · Match Made', text: 'Donation matched with Mother Teresa Child Care Home.' }
+        ]
+      },
+
+      'FLD9042': {
+        id: '#FLD-9042',
+        title: 'Bakery Fresh Bread, Rolls & Pastries (6 kg)',
+        status: 'Volunteer Assigned',
+        statusType: 'info',
+        subStatus: 'Volunteer Aman Verma is driving to Modern Bakery',
+        etaTime: 'Today, 4:00 PM',
+        etaCountdown: 'Approx. 45 minutes remaining · Volunteer arriving at bakery in 6 mins',
+        fill: '25%',
+        activeStep: 2,
+        stepTimes: ['3:00 PM', '3:10 PM', 'Est. 3:25 PM', 'Est. 3:40 PM', 'Est. 4:00 PM'],
+        otp: '7231',
+        vol: {
+          name: 'Aman Verma',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+          rating: '4.8 (64 Deliveries)',
+          vehicle: 'Hero Splendor · GJ 27 EF 9988'
+        },
+        food: {
+          qty: '6 kg (40 Bakery items)',
+          pack: 'Moisture-Safe Sealed Bags',
+          temp: 'Ambient (Bakery Fresh)',
+          expiry: '12 hrs remaining'
+        },
+        donor: { name: 'Modern Artisan Bakery', addr: 'C.G. Road, Navrangpura, Ahmedabad', coords: [23.0315, 72.5565] },
+        receiver: { name: 'Umeed Slum School Kitchen', addr: 'Sabarmati, Ahmedabad', coords: [23.0805, 72.5850] },
+        volunteerPos: [23.0330, 72.5510],
+        logs: [
+          { time: '3:10 PM · Volunteer Accepted', text: 'Volunteer Aman Verma confirmed pickup task.' },
+          { time: '3:00 PM · Donation Listed', text: 'Modern Artisan Bakery posted end-of-day surplus inventory.' }
+        ]
+      },
+
+      'R002': {
+        id: '#R002',
+        title: 'Dal Makhani + Basmati Rice (12 kg)',
+        status: 'Delivered',
+        statusType: 'success',
+        subStatus: 'Successfully handed over to Hope NGO Kitchen',
+        etaTime: 'Completed at 2:45 PM',
+        etaCountdown: '0 km · Delivery finished and verified via OTP',
+        fill: '100%',
+        activeStep: 5,
+        stepTimes: ['1:30 PM', '1:45 PM', '2:05 PM', '2:20 PM', '2:45 PM'],
+        otp: 'Verified ✓',
+        vol: {
+          name: 'Ravi Shah',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+          rating: '4.9 (142 Deliveries)',
+          vehicle: 'Honda Activa · GJ 01 AB 1234'
+        },
+        food: {
+          qty: '12 kg (~38 Portions)',
+          pack: 'Sealed Thermal Container',
+          temp: '67°C at Delivery',
+          expiry: 'Served immediately'
+        },
+        donor: { name: 'Hotel Rajmahal', addr: 'S.G. Highway, Bodakdev, Ahmedabad', coords: [23.0375, 72.5122] },
+        receiver: { name: 'Hope Foundation & Community Centre', addr: 'Navrangpura, Ahmedabad', coords: [23.0401, 72.5604] },
+        volunteerPos: [23.0401, 72.5604],
+        logs: [
+          { time: '2:45 PM · Delivery Confirmed', text: 'OTP verified by Hope Foundation Manager. 38 people fed.' },
+          { time: '2:20 PM · Out for Delivery', text: 'Volunteer left Highway location.' },
+          { time: '2:05 PM · Picked up', text: 'Food securely loaded into insulated bag.' },
+          { time: '1:30 PM · Order Placed', text: 'Surplus donation scheduled.' }
+        ]
+      }
+    };
+
+    // =========================================
+    // Leaflet Map Initialization
+    // =========================================
+    let map;
+    let donorMarker, volMarker, receiverMarker, routeLine;
+    let simInterval = null;
+    let isSimulating = false;
+
+    function initMap() {
+      // Initialize centered on Ahmedabad
+      map = L.map('liveMap').setView([23.0388, 72.5350], 13);
+
+      // OpenStreetMap Tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      loadOrderMap(ordersDB['R001']);
+    }
+
+    function createIcon(type, iconClass) {
+      return L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div class="custom-map-icon icon-${type}" style="width:36px;height:36px;"><i class="${iconClass}"></i></div>`,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+        popupAnchor: [0, -20]
+      });
+    }
+
+    function loadOrderMap(order) {
+      if (!map) return;
+
+      // Clean existing markers
+      if (donorMarker) map.removeLayer(donorMarker);
+      if (volMarker) map.removeLayer(volMarker);
+      if (receiverMarker) map.removeLayer(receiverMarker);
+      if (routeLine) map.removeLayer(routeLine);
+
+      // Add Donor Marker
+      donorMarker = L.marker(order.donor.coords, {
+        icon: createIcon('donor', 'bi bi-shop')
+      }).addTo(map).bindPopup(`<b>${order.donor.name}</b><br>Pickup Origin`);
+
+      // Add Receiver Marker
+      receiverMarker = L.marker(order.receiver.coords, {
+        icon: createIcon('ngo', 'bi bi-building-heart')
+      }).addTo(map).bindPopup(`<b>${order.receiver.name}</b><br>Destination Receiver`);
+
+      // Add Volunteer Marker
+      volMarker = L.marker(order.volunteerPos, {
+        icon: createIcon('volunteer', 'bi bi-bicycle')
+      }).addTo(map).bindPopup(`<b>${order.vol.name}</b><br>${order.vol.vehicle}`);
+
+      // Draw polyline connecting donor -> volunteer -> receiver
+      const points = [order.donor.coords, order.volunteerPos, order.receiver.coords];
+      routeLine = L.polyline(points, {
+        color: '#198754',
+        weight: 4,
+        dashArray: '7, 7',
+        opacity: 0.85
+      }).addTo(map);
+
+      // Fit bounds
+      const bounds = L.latLngBounds([order.donor.coords, order.receiver.coords, order.volunteerPos]);
+      map.fitBounds(bounds, { padding: [40, 40] });
+    }
+
+    function recenterMap() {
+      if (map && volMarker) {
+        map.setView(volMarker.getLatLng(), 14);
+        volMarker.openPopup();
+      }
+    }
+
+    // =========================================
+    // Simulated Live Volunteer Movement
+    // =========================================
+    function toggleSimulation() {
+      const btn = document.getElementById('simBtn');
+      if (isSimulating) {
+        clearInterval(simInterval);
+        isSimulating = false;
+        btn.innerHTML = '<i class="bi bi-play-fill me-1"></i> Simulate Movement';
+        btn.classList.replace('btn-warning', 'btn-success');
+      } else {
+        isSimulating = true;
+        btn.innerHTML = '<i class="bi bi-pause-fill me-1"></i> Pause Simulation';
+        btn.classList.replace('btn-success', 'btn-warning');
+
+        simInterval = setInterval(() => {
+          if (!volMarker || !receiverMarker) return;
+          const curPos = volMarker.getLatLng();
+          const targetPos = receiverMarker.getLatLng();
+
+          // Move step towards target
+          const latStep = (targetPos.lat - curPos.lat) * 0.08;
+          const lngStep = (targetPos.lng - curPos.lng) * 0.08;
+
+          const newLat = curPos.lat + latStep;
+          const newLng = curPos.lng + lngStep;
+
+          volMarker.setLatLng([newLat, newLng]);
+
+          if (routeLine && donorMarker) {
+            routeLine.setLatLngs([donorMarker.getLatLng(), [newLat, newLng], targetPos]);
+          }
+
+          // Update distance/time simulation
+          const etaCount = document.getElementById('etaCountdown');
+          if (etaCount && etaCount.innerText.includes('to go')) {
+            const currentMins = parseInt(etaCount.innerText.match(/\d+/) || 10);
+            if (currentMins > 1) {
+              etaCount.innerText = `Approx. ${currentMins - 1} minutes remaining · Live GPS Updating`;
+            }
+          }
+        }, 1500);
+      }
+    }
+
+    // =========================================
+    // Load Order Data
+    // =========================================
+    function loadOrder(orderKey, pillElement) {
+      if (pillElement) {
+        document.querySelectorAll('.quick-pill').forEach(p => p.classList.remove('active'));
+        pillElement.classList.add('active');
+      }
+
+      const cleanKey = orderKey.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      const order = ordersDB[cleanKey] || ordersDB[orderKey] || ordersDB['R001'];
+
+      // Populate Inputs & Text
+      document.getElementById('trackingInput').value = order.id;
+      document.getElementById('orderIdText').innerHTML = `Tracking ID: <strong>${order.id}</strong>`;
+      document.getElementById('foodTitle').innerText = order.title;
+      document.getElementById('subStatusText').innerHTML = `<i class="bi bi-geo-alt-fill text-danger me-1"></i> ${order.subStatus}`;
+      document.getElementById('etaTime').innerText = order.etaTime;
+      document.getElementById('etaCountdown').innerText = order.etaCountdown;
+
+      // Status Badge
+      const statusBadge = document.getElementById('statusBadge');
+      statusBadge.className = `badge bg-${order.statusType} py-2 px-3 fs-6 rounded-pill`;
+      statusBadge.innerHTML = `<span class="live-dot"></span> ${order.status}`;
+
+      // Stepper
+      document.getElementById('stepperFill').style.width = order.fill;
+      for (let i = 1; i <= 5; i++) {
+        const stepEl = document.getElementById(`step${i}`);
+        stepEl.className = 'step-item';
+        if (i < order.activeStep) {
+          stepEl.classList.add('completed');
+        } else if (i === order.activeStep) {
+          stepEl.classList.add(order.activeStep === 5 ? 'completed' : 'active');
+        }
+        document.getElementById(`step${i}Time`).innerText = order.stepTimes[i - 1];
+      }
+
+      // OTP & Volunteer
+      document.getElementById('otpCode').innerText = order.otp;
+      document.getElementById('volName').innerText = order.vol.name;
+      document.getElementById('volAvatar').src = order.vol.avatar;
+      document.getElementById('volRating').innerText = order.vol.rating;
+      document.getElementById('volVehicle').innerHTML = `<i class="bi bi-bicycle me-1"></i> ${order.vol.vehicle}`;
+
+      // Food details
+      document.getElementById('foodQty').innerText = order.food.qty;
+      document.getElementById('foodPack').innerText = order.food.pack;
+      document.getElementById('foodTemp').innerText = order.food.temp;
+      document.getElementById('foodExpiry').innerText = order.food.expiry;
+
+      // Locations
+      document.getElementById('donorName').innerText = order.donor.name;
+      document.getElementById('donorAddr').innerText = order.donor.addr;
+      document.getElementById('receiverName').innerText = order.receiver.name;
+      document.getElementById('receiverAddr').innerText = order.receiver.addr;
+
+      // Timeline Logs
+      const logsContainer = document.getElementById('timelineLogs');
+      logsContainer.innerHTML = order.logs.map(log => `
+        <div class="timeline-log-item">
+          <div class="timeline-log-dot"></div>
+          <div class="timeline-log-time">${log.time}</div>
+          <div class="timeline-log-text">${log.text}</div>
+        </div>
+      `).join('');
+
+      // Refresh Map
+      loadOrderMap(order);
+
+      // Stop any running simulation
+      if (isSimulating) toggleSimulation();
+    }
+
+    // =========================================
+    // Search Form Handler
+    // =========================================
+    function handleSearch(e) {
+      e.preventDefault();
+      const val = document.getElementById('trackingInput').value.trim();
+      const clean = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+      if (ordersDB[clean]) {
+        loadOrder(clean);
+        showToast('success', `Found tracking record for ${ordersDB[clean].id}`);
+      } else {
+        // Fallback demo order with custom ID
+        const dynamicOrder = JSON.parse(JSON.stringify(ordersDB['R001']));
+        dynamicOrder.id = val.startsWith('#') ? val : '#' + val;
+        dynamicOrder.status = 'Out for Delivery (Live)';
+        ordersDB[clean] = dynamicOrder;
+        loadOrder(clean);
+        showToast('info', `Showing live status for order ${dynamicOrder.id}`);
+      }
+    }
+
+    // =========================================
+    // Action Toast
+    // =========================================
+    function showToast(type, message) {
+      const toastEl = document.getElementById('actionToast');
+      document.getElementById('toastText').innerText = message;
+      toastEl.className = `toast align-items-center text-bg-${type === 'error' ? 'danger' : type === 'info' ? 'primary' : 'success'} border-0`;
+      const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
+      toast.show();
+    }
+
+    function callVolunteer() {
+      showToast('success', 'Calling volunteer Ravi Shah at +91 98765-43210...');
+    }
+
+    function chatVolunteer() {
+      showToast('info', 'Opening in-app delivery chat with volunteer Ravi Shah...');
+    }
+
+    // =========================================
+    // On Page Load: Check URL parameters
+    // =========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      initMap();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderParam = urlParams.get('id');
+      if (orderParam) {
+        const clean = orderParam.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        loadOrder(clean);
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,826 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register – FoodLoop</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    :root {
+      --fl-primary: #198754;
+      --fl-primary-dark: #12663f;
+      --fl-primary-light: #e8f7fd;
+      --fl-dark: #18332a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f7f6;
+      padding: 20px;
+    }
+
+    .auth-container {
+      display: flex;
+      width: 100%;
+      max-width: 980px;
+      min-height: 700px;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+      background: #fff;
+    }
+
+    /* ========== LEFT PANEL ========== */
+    .auth-left {
+      width: 38%;
+      background: linear-gradient(180deg, rgba(25, 135, 84, 0.88), rgba(18, 102, 63, 0.92)),
+        url('https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80') center/cover;
+      color: #fff;
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .auth-left .logo-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .auth-left h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+      color: #fff;
+    }
+
+    .auth-left .subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .feature-item i {
+      color: #79d5f5;
+      font-size: 1.1rem;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* ========== RIGHT PANEL (DARK) ========== */
+    .auth-right {
+      flex: 1;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #fff;
+      overflow-y: auto;
+      max-height: 95vh;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1.25rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #666;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    .auth-right h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 0.3rem;
+    }
+
+    .auth-right .sub {
+      font-size: 0.88rem;
+      color: #6c757d;
+      margin-bottom: 1.75rem;
+    }
+
+    /* Form Labels */
+    .form-label-custom {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.35rem;
+    }
+
+    .form-label-custom .required {
+      color: #f87171;
+    }
+
+    /* Input Groups */
+    .input-group-custom {
+      position: relative;
+      margin-bottom: 1.1rem;
+    }
+
+    .input-group-custom .input-icon-left {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--fl-primary);
+      font-size: 0.95rem;
+      z-index: 2;
+    }
+
+    .input-group-custom input {
+      width: 100%;
+      padding: 0.7rem 0.75rem 0.7rem 2.6rem;
+      border: 1.5px solid #d1d5db;
+      border-radius: 0.6rem;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      color: #333;
+    }
+
+    .input-group-custom input:focus {
+      outline: none;
+      border-color: var(--fl-primary);
+      box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15);
+      background: #fff;
+    }
+
+    .input-group-custom input::placeholder {
+      color: #9ca3af;
+    }
+
+    .input-group-custom .input-icon-right {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 0.95rem;
+      z-index: 2;
+      background: none;
+      border: none;
+    }
+
+    .input-group-custom .input-icon-right:hover {
+      color: #aaa;
+    }
+
+    /* No-icon input (for fields without left icon) */
+    .input-no-icon {
+      width: 100%;
+      padding: 0.7rem 0.75rem;
+      border: 1.5px solid #d1d5db;
+      border-radius: 0.6rem;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      color: #333;
+      margin-bottom: 1.1rem;
+    }
+
+    .input-no-icon:focus {
+      outline: none;
+      border-color: var(--fl-primary);
+      box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15);
+      background: #fff;
+    }
+
+    .input-no-icon::placeholder {
+      color: #9ca3af;
+    }
+
+    /* Row */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Role Selection Cards */
+    .role-section-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+
+    .role-card {
+      border: 1.5px solid #d1d5db;
+      border-radius: 0.6rem;
+      padding: 0.7rem 0.5rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      background: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .role-card:hover {
+      border-color: #3d5047;
+      background: #283530;
+    }
+
+    .role-card.active {
+      border-color: var(--fl-primary);
+      background: rgba(9, 158, 220, 0.08);
+    }
+
+    .role-card i {
+      font-size: 1.2rem;
+      color: var(--fl-primary);
+    }
+
+    .role-card span {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .role-card.active span {
+      color: #333;
+    }
+
+    /* Password Strength Bar */
+    .strength-bar-container {
+      height: 4px;
+      background: #d1d5db;
+      border-radius: 2px;
+      margin-top: -0.5rem;
+      margin-bottom: 0.3rem;
+      overflow: hidden;
+    }
+
+    .strength-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+      width: 0%;
+    }
+
+    .strength-label {
+      font-size: 0.72rem;
+      color: #9ca3af;
+      margin-bottom: 1rem;
+    }
+
+    /* Checkbox */
+    .terms-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+    }
+
+    .terms-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--fl-primary);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .terms-row label {
+      font-size: 0.82rem;
+      color: #6c757d;
+      cursor: pointer;
+      line-height: 1.5;
+    }
+
+    .terms-row label a {
+      color: var(--fl-primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .terms-row label a:hover {
+      text-decoration: underline;
+    }
+
+    /* Submit Button */
+    .btn-register {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--fl-primary);
+      color: #fff;
+      border: none;
+      border-radius: 50rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-register:hover {
+      background: var(--fl-primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-register:active {
+      transform: translateY(0);
+    }
+
+    /* Bottom Link */
+    .bottom-link {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-size: 0.88rem;
+      color: #6c757d;
+    }
+
+    .bottom-link a {
+      color: var(--fl-primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .bottom-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Toast Container */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    .toast-msg {
+      padding: 14px 20px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast-success {
+      background: var(--fl-primary);
+    }
+
+    .toast-error {
+      background: #dc3545;
+    }
+
+    .toast-warning {
+      background: #ffc107;
+      color: #333;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+      body {
+        background: #fff;
+      }
+
+      .auth-container {
+        flex-direction: column;
+        max-width: 100%;
+        min-height: auto;
+      }
+
+      .auth-left {
+        width: 100%;
+        padding: 2rem 1.5rem;
+        min-height: 180px;
+      }
+
+      .auth-left h2 {
+        font-size: 1.3rem;
+      }
+
+      .feature-list {
+        display: none;
+      }
+
+      .auth-right {
+        padding: 1.5rem;
+        max-height: none;
+      }
+
+      .form-row,
+      .form-row-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .role-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* Register page - LIGHT MODE ONLY */
+    body { background: #f5f7f6 !important; color: #333 !important; }
+    .auth-container, .auth-right { background: #fff !important; }
+    .auth-right h2 { color: #1a1a1a !important; }
+    .auth-right .sub, .bottom-link, .strength-label, .terms-row label {
+      color: #6c757d !important;
+    }
+    .form-label-custom, .role-section-title { color: #333 !important; }
+
+    .input-group-custom input, .input-no-icon {
+      background: #f9fafb !important;
+      color: #333 !important;
+      border-color: #d1d5db !important;
+    }
+
+    .input-group-custom input:focus, .input-no-icon:focus {
+      background: #fff !important;
+      border-color: #198754 !important;
+      box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15) !important;
+    }
+
+    .input-group-custom input::placeholder, .input-no-icon::placeholder {
+      color: #9ca3af !important;
+    }
+
+    .role-card {
+      background: #fff !important;
+      border-color: #d1d5db !important;
+    }
+
+    .role-card:hover {
+      background: #f5f7f9 !important;
+      border-color: #b8c0c7 !important;
+    }
+
+    .role-card.active {
+      background: #e8f7fd !important;
+      border-color: #198754 !important;
+    }
+
+    .role-card span, .role-card.active span { color: #333 !important; }
+    .strength-bar-container { background: #e5e7eb !important; }
+
+    @media (max-width: 768px) {
+      body { background: #f5f7f6 !important; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="auth-container">
+
+    <!-- ===== LEFT PANEL ===== -->
+    <div class="auth-left">
+      <div class="logo-icon">
+        <i class="bi bi-arrow-repeat"></i>
+      </div>
+      <h2>Be Part of the FoodLoop</h2>
+      <p class="subtitle">Help us make sure good food reaches people instead of becoming waste.</p>
+      <div class="feature-list">
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Rescue surplus food from local businesses.</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Connect food with NGOs and communities.</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Help reduce unnecessary food waste.</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Become a volunteer and make an impact.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT PANEL (DARK) ===== -->
+    <div class="auth-right">
+      <a href="index.html" class="close-btn" aria-label="Close">&times;</a>
+
+      <h2>Create Account</h2>
+      <p class="sub">Join FoodLoop and help reduce food waste.</p>
+
+      <form id="registerForm" novalidate>
+
+        <!-- Name Row -->
+        <div class="form-row">
+          <div>
+            <div class="form-label-custom">First Name <span class="required">*</span></div>
+            <div class="input-group-custom">
+              <i class="bi bi-person input-icon-left"></i>
+              <input type="text" id="regFirstName" placeholder="First name" required>
+            </div>
+          </div>
+          <div>
+            <div class="form-label-custom">Last Name</div>
+            <div class="input-group-custom">
+              <i class="bi bi-person input-icon-left"></i>
+              <input type="text" id="regLastName" placeholder="Last name">
+            </div>
+          </div>
+        </div>
+
+        <!-- Email & Phone -->
+        <div class="form-row">
+          <div>
+            <div class="form-label-custom">Email Address <span class="required">*</span></div>
+            <div class="input-group-custom">
+              <i class="bi bi-envelope input-icon-left"></i>
+              <input type="email" id="regEmail" placeholder="you@example.com" required>
+            </div>
+          </div>
+          <div>
+            <div class="form-label-custom">Mobile Number <span class="required">*</span></div>
+            <div class="input-group-custom">
+              <i class="bi bi-phone input-icon-left"></i>
+              <input type="tel" id="regPhone" placeholder="9876543210" maxlength="10" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Role Selection -->
+        <div class="role-section-title">Select Your Role <span class="required">*</span></div>
+        <div class="role-grid">
+          <div class="role-card active" onclick="selectRole(this, 'business')">
+            <i class="bi bi-shop"></i>
+            <span>Food Business</span>
+          </div>
+          <div class="role-card" onclick="selectRole(this, 'ngo')">
+            <i class="bi bi-people"></i>
+            <span>NGO / Receiver</span>
+          </div>
+          <div class="role-card" onclick="selectRole(this, 'customer')">
+            <i class="bi bi-person-fill"></i>
+            <span>Customer</span>
+          </div>
+          <div class="role-card" onclick="selectRole(this, 'volunteer')">
+            <i class="bi bi-bicycle"></i>
+            <span>Volunteer</span>
+          </div>
+        </div>
+        <input type="hidden" id="selectedRole" value="business">
+
+        <!-- Address -->
+        <div class="form-label-custom">Address <span class="required">*</span></div>
+        <div class="input-group-custom">
+          <i class="bi bi-geo-alt input-icon-left"></i>
+          <input type="text" id="regAddress" placeholder="Enter your full address" required>
+        </div>
+
+        <!-- City, State, Pincode -->
+        <div class="form-row-3">
+          <div>
+            <div class="form-label-custom">City <span class="required">*</span></div>
+            <input type="text" class="input-no-icon" id="regCity" placeholder="Ahmedabad" required>
+          </div>
+          <div>
+            <div class="form-label-custom">State <span class="required">*</span></div>
+            <input type="text" class="input-no-icon" id="regState" placeholder="Gujarat" required>
+          </div>
+          <div>
+            <div class="form-label-custom">Pincode <span class="required">*</span></div>
+            <input type="text" class="input-no-icon" id="regPincode" placeholder="380001" maxlength="6" required>
+          </div>
+        </div>
+
+        <!-- Password Row -->
+        <div class="form-row">
+          <div>
+            <div class="form-label-custom">Password <span class="required">*</span></div>
+            <div class="input-group-custom">
+              <i class="bi bi-lock input-icon-left"></i>
+              <input type="password" id="regPassword" placeholder="Create password" required oninput="checkStrength()">
+              <button type="button" class="input-icon-right" onclick="togglePassword('regPassword', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <div class="form-label-custom">Confirm Password <span class="required">*</span></div>
+            <div class="input-group-custom">
+              <i class="bi bi-lock input-icon-left"></i>
+              <input type="password" id="regConfirmPassword" placeholder="Confirm password" required>
+              <button type="button" class="input-icon-right" onclick="togglePassword('regConfirmPassword', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password Strength -->
+        <div class="strength-bar-container">
+          <div class="strength-bar" id="strengthBar"></div>
+        </div>
+        <div class="strength-label" id="strengthLabel">Password strength</div>
+
+        <!-- Terms -->
+        <div class="terms-row">
+          <input type="checkbox" id="termsCheck" required>
+          <label for="termsCheck">
+            I agree to FoodLoop's <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a>.
+          </label>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-register">
+          <i class="bi bi-person-plus"></i> Create FoodLoop Account
+        </button>
+      </form>
+
+      <div class="bottom-link">
+        Already have an account? <a href="login.html">Login</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // Role selection
+    function selectRole(element, role) {
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+      element.classList.add('active');
+      document.getElementById('selectedRole').value = role;
+    }
+
+    // Toggle password visibility
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+      }
+    }
+
+    // Password strength checker
+    function checkStrength() {
+      const pw = document.getElementById('regPassword').value;
+      const bar = document.getElementById('strengthBar');
+      const label = document.getElementById('strengthLabel');
+      let strength = 0;
+
+      if (pw.length >= 8) strength += 25;
+      if (pw.match(/[a-z]+/)) strength += 25;
+      if (pw.match(/[A-Z]+/)) strength += 25;
+      if (pw.match(/[0-9]+/) || pw.match(/[^a-zA-Z0-9]+/)) strength += 25;
+
+      bar.style.width = strength + '%';
+
+      if (strength <= 25) {
+        bar.style.background = '#dc3545';
+        label.textContent = 'Password strength: Weak';
+      } else if (strength <= 50) {
+        bar.style.background = '#ffc107';
+        label.textContent = 'Password strength: Fair';
+      } else if (strength <= 75) {
+        bar.style.background = '#0dcaf0';
+        label.textContent = 'Password strength: Good';
+      } else {
+        bar.style.background = '#198754';
+        label.textContent = 'Password strength: Strong';
+      }
+    }
+
+    // Toast notification
+    function showToast(type, title, message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast-msg toast-' + type;
+      toast.innerHTML = '<strong>' + title + '</strong><br>' + message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    // Form submit
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const fn = document.getElementById('regFirstName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const pw = document.getElementById('regPassword').value;
+      const cpw = document.getElementById('regConfirmPassword').value;
+      const terms = document.getElementById('termsCheck').checked;
+
+      if (!fn || !email || !phone) {
+        showToast('warning', 'Fields Required', 'Please fill in all required fields.');
+        return;
+      }
+
+      if (pw.length < 6) {
+        showToast('error', 'Weak Password', 'Password must be at least 6 characters.');
+        return;
+      }
+
+      if (pw !== cpw) {
+        showToast('error', 'Password Mismatch', 'Passwords do not match.');
+        return;
+      }
+
+      if (!terms) {
+        showToast('warning', 'Terms Required', 'Please agree to the Terms & Conditions.');
+        return;
+      }
+
+      showToast('success', 'Account Created', 'Redirecting to login...');
+      setTimeout(() => window.location.href = 'login.html', 1500);
+    });
+  </script>
+
+</body>
+
+</html>

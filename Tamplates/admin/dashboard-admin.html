@@ -1,0 +1,2081 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Admin Panel – FoodLoop</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232E7D32' stroke-width='2'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z'/><path d='M8 14s1.5 2 4 2 4-2 4-2'/></svg>" />
+  <style>
+    body{background:#f0f4f8;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+    .dashboard-page{display:flex;min-height:100vh}
+
+    /* ─── Sidebar ─── */
+    .sidebar{width:260px;min-width:260px;background:#0f1923;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;transition:transform .3s ease;overflow-y:auto;border-right:1px solid #1e2d3d}
+    .sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:#1e2d3d;border-radius:4px}
+    .sidebar-brand{display:flex;align-items:center;gap:12px;padding:22px 20px 18px;border-bottom:1px solid #1e2d3d}
+    .brand-logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#2E7D32,#4CAF50);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(46,125,50,.4);color:#fff}
+    .brand-logo svg{width:22px;height:22px}
+    .brand-text{display:flex;flex-direction:column;line-height:1.2}
+    .brand-text .name{color:#f1f5f9;font-size:1.05rem;font-weight:800;letter-spacing:.3px}
+    .brand-text .sub{color:#475569;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+
+    /* Sidebar User Profile */
+    .sidebar-user{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:12px 12px 4px;background:#1a2840;border-radius:12px;border:1px solid #1e2d3d;transition:all .3s ease}
+    .sidebar-avatar{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#D32F2F,#EF9A9A);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:.5px;transition:background .3s ease}
+    .sidebar-user-info .name{color:#e2e8f0;font-size:.88rem;font-weight:700}
+    .sidebar-user-info .role-tag{display:inline-block;margin-top:3px;font-size:.65rem;font-weight:700;letter-spacing:.8px;padding:2px 8px;border-radius:4px;background:rgba(211,47,47,.2);color:#EF9A9A;text-transform:uppercase;transition:all .3s ease}
+
+    /* Role styling variants */
+    .role-admin-mode .sidebar-avatar{background:linear-gradient(135deg,#2E7D32,#81C784);}
+    .role-admin-mode .sidebar-user-info .role-tag{background:rgba(46,125,50,.25);color:#81C784;}
+    .role-superadmin-mode .sidebar-avatar{background:linear-gradient(135deg,#D32F2F,#EF9A9A);}
+    .role-superadmin-mode .sidebar-user-info .role-tag{background:rgba(211,47,47,.25);color:#EF9A9A;}
+
+    .sidebar-nav{padding:12px;flex:1}
+    .nav-section-label{font-size:.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#475569;padding:12px 10px 6px;margin-top:4px}
+    .sidebar-nav a{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:8px;color:#94a3b8;font-size:.84rem;font-weight:500;transition:all .2s ease;margin-bottom:2px;text-decoration:none}
+    .sidebar-nav a:hover{background:#1e293b;color:#cbd5e1}
+    .sidebar-nav a.active{background:rgba(46,125,50,.18);color:#4ade80;border:1px solid rgba(46,125,50,.25)}
+    .nav-icon{display:flex;align-items:center;flex-shrink:0}
+    .nav-icon svg{width:16px;height:16px;color:#64748b;transition:color .2s}
+    .sidebar-nav a:hover .nav-icon svg{color:#94a3b8}
+    .sidebar-nav a.active .nav-icon svg{color:#4ade80}
+    .badge-count{margin-left:auto;background:#2E7D32;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:10px;min-width:20px;text-align:center}
+    .badge-super-req{margin-left:auto;background:rgba(220,38,38,.18);color:#f87171;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:6px;letter-spacing:.4px}
+    .sidebar-footer{padding:12px;border-top:1px solid #1e2d3d;display:flex;flex-direction:column;gap:2px}
+    .sidebar-footer a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:#64748b;font-size:.83rem;font-weight:500;transition:all .2s;text-decoration:none}
+    .sidebar-footer a:hover{background:#1e293b;color:#94a3b8}
+    .sidebar-footer a svg{width:16px;height:16px;flex-shrink:0;color:#64748b}
+
+    /* ─── Main Content ─── */
+    .main-content{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+    .sidebar-toggle{display:none;position:fixed;top:14px;left:14px;z-index:300;background:#0f1923;border:1px solid #1e2d3d;color:#94a3b8;padding:8px;border-radius:8px;align-items:center;justify-content:center;cursor:pointer}
+    .sidebar-toggle svg{width:20px;height:20px}
+
+    /* ─── Topbar ─── */
+    .topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:68px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+    .topbar-left{display:flex;align-items:center;gap:16px}
+    .topbar-left h2{font-size:1.1rem;font-weight:700;color:#0f1923;margin:0}
+
+    /* ─── Modern Role Switcher Component ─── */
+    .role-switcher-container{display:flex;align-items:center;gap:12px}
+    .role-switch-pill{display:inline-flex;align-items:center;background:#0f1923;padding:4px;border-radius:30px;border:1px solid #233547;box-shadow:inset 0 1px 3px rgba(0,0,0,.3)}
+    .role-pill-btn{display:inline-flex;align-items:center;gap:7px;border:none;background:transparent;color:#94a3b8;padding:7px 16px;border-radius:24px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .25s ease;letter-spacing:.3px}
+    .role-pill-btn svg{width:14px;height:14px}
+    .role-pill-btn:hover{color:#f8fafc}
+    .role-pill-btn.active.role-btn-admin{background:linear-gradient(135deg,#2E7D32,#43A047);color:#fff;box-shadow:0 2px 10px rgba(46,125,50,.4)}
+    .role-pill-btn.active.role-btn-super{background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff;box-shadow:0 2px 10px rgba(220,38,38,.45)}
+
+    /* Current Mode Indicator Pill */
+    .role-indicator{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;font-size:.74rem;font-weight:700;letter-spacing:.4px}
+    .role-indicator .pulse-dot{width:7px;height:7px;border-radius:50%;position:relative}
+    .role-indicator .pulse-dot::after{content:'';position:absolute;width:100%;height:100%;top:0;left:0;border-radius:50%;animation:pulseDot 1.8s infinite}
+    @keyframes pulseDot{0%{transform:scale(1);opacity:.8}50%{transform:scale(2.2);opacity:0}100%{transform:scale(1);opacity:0}}
+
+    .role-indicator.admin-mode{background:rgba(46,125,50,.1);color:#166534;border:1px solid rgba(46,125,50,.25)}
+    .role-indicator.admin-mode .pulse-dot{background:#16a34a}
+    .role-indicator.admin-mode .pulse-dot::after{background:#16a34a}
+
+    .role-indicator.superadmin-mode{background:rgba(220,38,38,.1);color:#991b1b;border:1px solid rgba(220,38,38,.25)}
+    .role-indicator.superadmin-mode .pulse-dot{background:#dc2626}
+    .role-indicator.superadmin-mode .pulse-dot::after{background:#dc2626}
+
+    /* Privileges matrix button */
+    .btn-matrix-toggle{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1.5px solid #cbd5e1;color:#475569;padding:6px 12px;border-radius:8px;font-size:.76rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-matrix-toggle:hover{background:#f1f5f9;color:#0f172a;border-color:#94a3b8}
+    .btn-matrix-toggle svg{width:14px;height:14px}
+
+    .topbar-right{display:flex;align-items:center;gap:12px}
+    .topbar-btn{width:38px;height:38px;border-radius:9px;background:#f8fafc;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;color:#64748b;transition:all .2s;position:relative;cursor:pointer}
+    .topbar-btn:hover{background:#f1f5f9;color:#0f172a}
+    .topbar-btn svg{width:18px;height:18px}
+    .notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:#ef4444;border:1.5px solid #fff}
+    .topbar-user{display:flex;align-items:center;gap:10px;padding:5px 10px;border-radius:9px;cursor:pointer;transition:background .2s}
+    .topbar-user:hover{background:#f8fafc}
+    .t-avatar{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#D32F2F,#EF9A9A);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:#fff;letter-spacing:.5px;transition:background .3s}
+    .topbar-user span{font-size:.85rem;font-weight:600;color:#374151}
+
+    .role-admin-mode .t-avatar{background:linear-gradient(135deg,#2E7D32,#81C784);}
+    .role-superadmin-mode .t-avatar{background:linear-gradient(135deg,#D32F2F,#EF9A9A);}
+
+    /* ─── Role Context Banner ─── */
+    .role-context-banner{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:.84rem;transition:all .3s ease}
+    .role-context-banner.admin{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+    .role-context-banner.superadmin{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+    .role-context-banner .banner-left{display:flex;align-items:center;gap:10px;font-weight:600}
+    .role-context-banner .banner-left svg{width:18px;height:18px;flex-shrink:0}
+    .role-context-banner .banner-right{font-size:.78rem;font-weight:500;opacity:.9}
+
+    /* ─── Super Admin Exclusive Controls styling ─── */
+    .superadmin-action{transition:all .2s ease}
+    .role-admin-mode .superadmin-action.lock-in-admin{opacity:.45;pointer-events:none;filter:grayscale(.7);cursor:not-allowed;position:relative}
+    .role-admin-mode .superadmin-action.hide-in-admin{display:none !important}
+    .role-admin-mode .superadmin-badge{display:none}
+
+    .superadmin-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(220,38,38,.1);color:#dc2626;padding:2px 7px;border-radius:4px;font-size:.65rem;font-weight:700;text-transform:uppercase}
+    .admin-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(46,125,50,.1);color:#166534;padding:2px 7px;border-radius:4px;font-size:.65rem;font-weight:700;text-transform:uppercase}
+
+    /* ─── Dash content ─── */
+    .dash-content{padding:24px 28px;flex:1}
+
+    /* ─── Stat cards ─── */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:22px}
+    .stat-card{background:#fff;border-radius:14px;padding:18px;display:flex;align-items:flex-start;gap:14px;border:1px solid #e9f0e9;box-shadow:0 1px 4px rgba(0,0,0,.04);transition:box-shadow .2s,transform .2s}
+    .stat-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.08);transform:translateY(-2px)}
+    .stat-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .stat-icon svg{width:22px;height:22px}
+    .bg-primary-soft{background:rgba(46,125,50,.1)}.bg-primary-soft svg{color:#2E7D32}
+    .bg-success-soft{background:rgba(56,142,60,.1)}.bg-success-soft svg{color:#388E3C}
+    .bg-info-soft{background:rgba(2,136,209,.1)}.bg-info-soft svg{color:#0288D1}
+    .bg-warning-soft{background:rgba(249,168,37,.12)}.bg-warning-soft svg{color:#F9A825}
+    .bg-secondary-soft{background:rgba(255,111,0,.1)}.bg-secondary-soft svg{color:#FF6F00}
+    .bg-danger-soft{background:rgba(211,47,47,.1)}.bg-danger-soft svg{color:#D32F2F}
+    .stat-info .value{font-size:1.55rem;font-weight:800;line-height:1.1}
+    .stat-info .label{font-size:.78rem;color:#64748b;font-weight:500;margin-top:2px}
+    .stat-info .change{font-size:.73rem;margin-top:5px;font-weight:600;display:flex;align-items:center;gap:4px}
+    .change.up{color:#16a34a}.change.down{color:#dc2626}
+
+    /* ─── Grid ─── */
+    .dash-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;margin-bottom:20px}
+    .panel{background:#fff;border-radius:14px;border:1px solid #e9f0e9;box-shadow:0 1px 4px rgba(0,0,0,.04);overflow:hidden;margin-bottom:20px}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f1f5f9;background:#fafbfc}
+    .panel-header h3{font-size:.92rem;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px;margin:0}
+    .panel-header h3 svg{width:17px;height:17px;color:#64748b}
+    .panel-body{padding:20px}
+
+    /* ─── Chart ─── */
+    .chart-placeholder{display:flex;flex-direction:column;align-items:center;gap:12px}
+    .chart-bars{display:flex;align-items:flex-end;gap:8px;width:100%}
+    .chart-bar{flex:1;background:linear-gradient(180deg,#4CAF50,#2E7D32);border-radius:6px 6px 0 0;min-width:22px;transition:opacity .2s}
+    .chart-bar:hover{opacity:.8}
+    .chart-bar.orange{background:linear-gradient(180deg,#FFA000,#FF6F00)}
+    .chart-legend{display:flex;gap:16px;font-size:.78rem;color:#64748b;font-weight:500;flex-wrap:wrap;justify-content:center}
+    .legend-dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+    /* ─── Activity ─── */
+    .notif-list{display:flex;flex-direction:column}
+    .notif-item{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid #f8fafc}
+    .notif-item:last-child{border-bottom:none}
+    .notif-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .notif-icon svg{width:17px;height:17px}
+    .notif-text{flex:1}
+    .notif-text .title{font-size:.83rem;font-weight:600;color:#0f172a;line-height:1.4}
+    .notif-text .time{font-size:.72rem;color:#94a3b8;margin-top:2px}
+    .unread-dot{width:7px;height:7px;border-radius:50%;background:#2E7D32;flex-shrink:0;margin-top:6px}
+
+    /* ─── Breakdown ─── */
+    .breakdown-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+    .breakdown-card{text-align:center;padding:18px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;transition:box-shadow .2s,transform .2s}
+    .breakdown-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.06);transform:translateY(-2px)}
+    .breakdown-icon{width:46px;height:46px;border-radius:12px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
+    .breakdown-icon svg{width:22px;height:22px}
+    .breakdown-val{font-size:1.6rem;font-weight:800;margin-bottom:3px}
+    .breakdown-lbl{font-size:.75rem;color:#64748b;font-weight:600}
+
+    /* ─── Tables ─── */
+    .table-wrap{overflow-x:auto}
+    .data-table{width:100%;border-collapse:collapse;font-size:.85rem}
+    .data-table thead tr{background:#f8fafc;border-bottom:1.5px solid #e2e8f0}
+    .data-table th{padding:10px 14px;text-align:left;font-size:.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.7px;white-space:nowrap}
+    .data-table td{padding:12px 14px;color:#374151;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+    .data-table tbody tr:hover{background:#fafcff}
+    .data-table tbody tr:last-child td{border-bottom:none}
+    .food-name{font-weight:600;color:#0f172a}
+    .user-cell{display:flex;align-items:center;gap:10px}
+    .user-mini-avatar{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;color:#fff;flex-shrink:0}
+
+    /* ─── Badges ─── */
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;font-size:.7rem;font-weight:700;white-space:nowrap}
+    .badge-success{background:#dcfce7;color:#166534}
+    .badge-info{background:#dbeafe;color:#1d4ed8}
+    .badge-warning{background:#fef9c3;color:#854d0e}
+    .badge-danger{background:#fee2e2;color:#991b1b}
+    .badge-neutral{background:#f1f5f9;color:#475569}
+    .badge-purple{background:#f3e8ff;color:#6b21a8}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none}
+    .btn-sm{padding:5px 10px;font-size:.75rem;border-radius:6px}
+    .btn-primary{background:#2E7D32;color:#fff}.btn-primary:hover{background:#256629}
+    .btn-super{background:#dc2626;color:#fff}.btn-super:hover{background:#b91c1c}
+    .btn-outline{background:#fff;border:1px solid #cbd5e1;color:#475569}.btn-outline:hover{background:#f8fafc;color:#0f172a;border-color:#94a3b8}
+    .btn-danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}.btn-danger:hover{background:#fecaca}
+    .btn-success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}.btn-success:hover{background:#bbf7d0}
+
+    /* ─── Forms ─── */
+    .form-group{margin-bottom:16px}
+    .form-group label{display:block;font-size:.82rem;font-weight:600;color:#374151;margin-bottom:5px}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 13px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.88rem;font-family:inherit;color:#0f172a;background:#fff;transition:border-color .2s}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#2E7D32;box-shadow:0 0 0 3px rgba(46,125,50,.1)}
+    .form-group input:disabled,.form-group select:disabled,.form-group textarea:disabled{background:#f1f5f9;color:#94a3b8;cursor:not-allowed}
+    .toggle-row{display:flex;align-items:center;gap:14px;padding:12px 14px;background:#f8fafc;border-radius:9px;border:1px solid #e2e8f0;margin-bottom:10px}
+    .toggle-row input[type=checkbox]{width:18px;height:18px;accent-color:#2E7D32;flex-shrink:0}
+    .toggle-row label{font-size:.84rem;font-weight:500;color:#374151;cursor:pointer}
+
+    /* ─── Progress ─── */
+    .progress{height:7px;background:#f1f5f9;border-radius:10px;overflow:hidden}
+    .progress-bar{height:100%;background:linear-gradient(90deg,#4CAF50,#2E7D32);border-radius:10px}
+    .progress-bar.orange{background:linear-gradient(90deg,#FFA000,#FF6F00)}
+
+    /* ─── Modal System ─── */
+    .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,25,35,.6);backdrop-filter:blur(3px);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.active{display:flex}
+    .modal-card{background:#fff;border-radius:16px;width:100%;max-width:960px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,.2);overflow:hidden;animation:modalIn .25s ease}
+    @keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+    .modal-header{padding:18px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;background:#fafbfc}
+    .modal-header h3{margin:0;font-size:1.1rem;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:10px}
+    .modal-close{background:none;border:none;font-size:1.4rem;color:#64748b;cursor:pointer;line-height:1;padding:4px}
+    .modal-close:hover{color:#0f172a}
+    .modal-body{padding:24px;overflow-y:auto}
+
+    /* Matrix Table Modal */
+    .matrix-table{width:100%;border-collapse:collapse;font-size:.84rem}
+    .matrix-table th{background:#0f1923;color:#fff;padding:12px 14px;text-align:left;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px}
+    .matrix-table th.col-admin{background:#1a4d2e}
+    .matrix-table th.col-super{background:#7f1d1d}
+    .matrix-table td{padding:10px 14px;border-bottom:1px solid #e2e8f0;vertical-align:top}
+    .matrix-table tr:nth-child(even){background:#f8fafc}
+    .matrix-table tr:hover{background:#f1f5f9}
+    .matrix-table .module-name{font-weight:700;color:#0f172a;display:flex;align-items:center;gap:6px}
+    .matrix-table .admin-desc{color:#1e3a2b;background:#f0fdf4;padding:4px 8px;border-radius:6px;border-left:3px solid #16a34a}
+    .matrix-table .super-desc{color:#7f1d1d;background:#fef2f2;padding:4px 8px;border-radius:6px;border-left:3px solid #dc2626;font-weight:600}
+
+    /* ─── Toast ─── */
+    .toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+    .toast{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.15);font-size:.875rem;min-width:280px;max-width:380px;animation:toastIn .3s ease;font-family:inherit;background:#fff}
+    .toast.success{border-left:4px solid #16a34a}
+    .toast.error{border-left:4px solid #dc2626}
+    .toast.info{border-left:4px solid #0284c7}
+    .toast.warning{border-left:4px solid #d97706}
+    .toast-icon{width:20px;height:20px;flex-shrink:0;margin-top:1px}
+    .toast.success .toast-icon{color:#16a34a}
+    .toast.error .toast-icon{color:#dc2626}
+    .toast.info .toast-icon{color:#0284c7}
+    .toast.warning .toast-icon{color:#d97706}
+    .toast-body .t-title{font-weight:700;color:#0f172a;margin-bottom:2px;font-size:.875rem}
+    .toast-body .t-msg{color:#64748b;font-size:.82rem}
+    @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+    /* ─── Responsive ─── */
+    @media(max-width:1100px){
+      .topbar{flex-wrap:wrap;height:auto;padding:12px 18px;gap:12px}
+      .role-switcher-container{order:3;width:100%;justify-content:space-between}
+    }
+    @media(max-width:900px){
+      .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0}.sidebar-toggle{display:flex}.dash-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:600px){
+      .dash-content{padding:14px}.stats-grid{grid-template-columns:1fr 1fr}.topbar{padding:10px 14px}
+    }
+    .hidden{display:none !important}
+  </style>
+</head>
+
+<body class="role-superadmin-mode">
+  <div class="dashboard-page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <div class="brand-text">
+          <span class="name">FoodLoop</span>
+          <span class="sub" id="sidebarRoleSub">Admin Console</span>
+        </div>
+      </div>
+
+      <!-- Current Profile Card synced with Switch -->
+      <div class="sidebar-user" id="sidebarUserCard">
+        <div class="sidebar-avatar" id="sidebarAvatar">SA</div>
+        <div class="sidebar-user-info">
+          <div class="name" id="sidebarUserName">Super Admin</div>
+          <span class="role-tag" id="sidebarRoleTag">SUPER_ADMIN</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- Overview -->
+        <div class="nav-section-label">Overview</div>
+        <a href="#" class="active" onclick="showSection('dashboard',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+          Dashboard
+        </a>
+        <a href="#" onclick="showSection('analytics',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          Reports &amp; Analytics
+        </a>
+        <a href="#" onclick="showSection('monitoring',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+          System Monitoring
+        </a>
+
+        <!-- Users & Entities -->
+        <div class="nav-section-label">User &amp; Entity Mgmt</div>
+        <a href="#" onclick="showSection('users',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          User Management <span class="badge-count">124</span>
+        </a>
+        <a href="#" onclick="showSection('businesses',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          Food Providers
+        </a>
+        <a href="#" onclick="showSection('ngos',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+          NGO Management
+        </a>
+        <a href="#" onclick="showSection('customers',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg></span>
+          Customer Mgmt
+        </a>
+        <a href="#" onclick="showSection('volunteers',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+          Volunteer Mgmt
+        </a>
+        <a href="#" onclick="showSection('verification',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+          Account Verification <span class="badge-count" style="background:#dc2626;">4</span>
+        </a>
+
+        <!-- Operations -->
+        <div class="nav-section-label">Operations &amp; Logistics</div>
+        <a href="#" onclick="showSection('food',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
+          Surplus Food Mgmt
+        </a>
+        <a href="#" onclick="showSection('requests',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+          Requests &amp; Matching
+        </a>
+        <a href="#" onclick="showSection('pickups',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+          Pickup &amp; Delivery
+        </a>
+
+        <!-- Governance & Security -->
+        <div class="nav-section-label">Governance &amp; Security</div>
+        <a href="#" onclick="showSection('roles',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          Roles &amp; Permissions
+        </a>
+        <a href="#" onclick="showSection('security',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+          Security Center
+        </a>
+        <a href="#" onclick="showSection('audit',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg></span>
+          Audit Logs
+        </a>
+        <a href="#" onclick="showSection('notifications',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+          Notifications
+        </a>
+        <a href="#" onclick="showSection('settings',this);return false;">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+          System Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="index.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Back to Home
+        </a>
+        <a href="login.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <div class="main-content">
+      <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      <!-- TOPBAR WITH ROLE SWITCHER -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h2 id="pageTitle">Admin Dashboard</h2>
+        </div>
+
+        <!-- ─── ROLE SWITCH CONTROLLER ─── -->
+        <div class="role-switcher-container">
+          <!-- Segmented Pill Switch -->
+          <div class="role-switch-pill">
+            <button type="button" class="role-pill-btn role-btn-admin" id="roleBtnAdmin" onclick="setRole('admin')" title="Switch to Admin Mode (Operational)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Admin
+            </button>
+            <button type="button" class="role-pill-btn role-btn-super active" id="roleBtnSuperAdmin" onclick="setRole('superadmin')" title="Switch to Super Admin Mode (Full System Control)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Super Admin
+            </button>
+          </div>
+
+          <!-- Dynamic Status Badge -->
+          <div class="role-indicator superadmin-mode" id="roleIndicator">
+            <span class="pulse-dot"></span>
+            <span id="roleIndicatorText">Super Admin: Full Control</span>
+          </div>
+
+          <!-- Open Role Matrix Modal Button -->
+          <button type="button" class="btn-matrix-toggle" onclick="openModal('modal-role-matrix')" title="View complete 19-module capabilities breakdown">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Task Matrix
+          </button>
+        </div>
+
+        <div class="topbar-right">
+          <button class="topbar-btn" onclick="showSection('notifications',null)" title="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="notif-dot"></span>
+          </button>
+          <button class="topbar-btn" onclick="showToast('info','Search','Global search across users, listings and logs.')" title="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+          <div class="topbar-user" onclick="toggleRoleShortcut()" title="Click to quickly switch role">
+            <div class="t-avatar" id="topbarAvatar">SA</div>
+            <span id="topbarUserName">Super Admin</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- DASHBOARD CONTENT AREA -->
+      <div class="dash-content">
+
+        <!-- Dynamic Context Alert Banner -->
+        <div class="role-context-banner superadmin" id="roleContextBanner">
+          <div class="banner-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span id="bannerMainText">Active Session: <strong>Super Admin Mode</strong> (Full Elevated Privileges)</span>
+          </div>
+          <div class="banner-right" id="bannerSubText">
+            Full control over users, security, verification, matching rules &amp; system configurations.
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             1. DASHBOARD OVERVIEW (System Monitoring)
+             ═══════════════════════════════════════════ -->
+        <div id="sec-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon bg-primary-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div class="stat-info">
+                <div class="value" style="color:#2E7D32">124</div>
+                <div class="label">Total Users</div>
+                <div class="change up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> 12 this week</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-success-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+              <div class="stat-info">
+                <div class="value" style="color:#388E3C">348</div>
+                <div class="label">Food Listings</div>
+                <div class="change up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> 28 today</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-info-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+              <div class="stat-info">
+                <div class="value" style="color:#0288D1">89</div>
+                <div class="label">Matches Approved</div>
+                <div class="change up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> 5 today</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-warning-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+              <div class="stat-info">
+                <div class="value" style="color:#F9A825">76</div>
+                <div class="label">Active Deliveries</div>
+                <div class="change up">98% success rate</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-secondary-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c-4.97 0-9-2.69-9-6V8l9-4 9 4v8c0 3.31-4.03 6-9 6z"/></svg></div>
+              <div class="stat-info">
+                <div class="value" style="color:#FF6F00">5,280 <span style="font-size:.9rem;font-weight:600">kg</span></div>
+                <div class="label">Food Rescued</div>
+                <div class="change up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> 320 kg this week</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-danger-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></div>
+              <div class="stat-info">
+                <div class="value" style="color:#D32F2F">312 <span style="font-size:.9rem;font-weight:600">kg</span></div>
+                <div class="label">Food Wasted</div>
+                <div class="change down"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg> 50 kg from last week</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-grid">
+            <!-- Analytics Chart -->
+            <div class="panel">
+              <div class="panel-header">
+                <h3>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  System Analytics
+                </h3>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn btn-outline btn-sm" onclick="showToast('info','Export','Operational metrics exported.')">Export Quick Summary</button>
+                  <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Super Admin','Full System Analytics Pack generated.')">
+                    <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Deep Audit
+                  </button>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="chart-placeholder" style="height:220px;">
+                  <div class="chart-bars" style="height:150px;">
+                    <div class="chart-bar" style="height:70%;"></div>
+                    <div class="chart-bar orange" style="height:30%;"></div>
+                    <div class="chart-bar" style="height:90%;"></div>
+                    <div class="chart-bar orange" style="height:20%;"></div>
+                    <div class="chart-bar" style="height:80%;"></div>
+                    <div class="chart-bar orange" style="height:15%;"></div>
+                    <div class="chart-bar" style="height:95%;"></div>
+                  </div>
+                  <div class="chart-legend">
+                    <span style="display:flex;align-items:center;gap:6px;"><span class="legend-dot" style="background:#4CAF50;"></span>Food Rescued</span>
+                    <span style="display:flex;align-items:center;gap:6px;"><span class="legend-dot" style="background:#FF6F00;"></span>Food Wasted (Monthly)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="panel">
+              <div class="panel-header">
+                <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Live Activity Log</h3>
+                <span class="badge badge-info">Realtime</span>
+              </div>
+              <div class="panel-body" style="padding-top:8px;">
+                <div class="notif-list">
+                  <div class="notif-item">
+                    <div class="notif-icon bg-primary-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                    <div class="notif-text"><div class="title">New provider registered: Spice Garden</div><div class="time">Just now</div></div>
+                    <div class="unread-dot"></div>
+                  </div>
+                  <div class="notif-item">
+                    <div class="notif-icon bg-success-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                    <div class="notif-text"><div class="title">18kg Veg Biryani matched with Roti Bank</div><div class="time">12 min ago</div></div>
+                    <div class="unread-dot"></div>
+                  </div>
+                  <div class="notif-item">
+                    <div class="notif-icon bg-warning-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+                    <div class="notif-text"><div class="title">Delivery confirmed: Order #D-409</div><div class="time">35 min ago</div></div>
+                  </div>
+                  <div class="notif-item">
+                    <div class="notif-icon bg-danger-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                    <div class="notif-text"><div class="title">Verification pending: Hope Foundation NGO</div><div class="time">1 hr ago</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Breakdown Panel -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Platform Entities Breakdown</h3>
+              <span class="admin-badge">Admin: Manage</span>
+              <span class="superadmin-badge">Super Admin: Full Control</span>
+            </div>
+            <div class="panel-body">
+              <div class="breakdown-grid">
+                <div class="breakdown-card" onclick="showSection('businesses',null)" style="cursor:pointer;">
+                  <div class="breakdown-icon bg-primary-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+                  <div class="breakdown-val" style="color:#2E7D32">42</div>
+                  <div class="breakdown-lbl">Food Providers</div>
+                </div>
+                <div class="breakdown-card" onclick="showSection('ngos',null)" style="cursor:pointer;">
+                  <div class="breakdown-icon bg-info-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+                  <div class="breakdown-val" style="color:#0288D1">18</div>
+                  <div class="breakdown-lbl">NGOs</div>
+                </div>
+                <div class="breakdown-card" onclick="showSection('customers',null)" style="cursor:pointer;">
+                  <div class="breakdown-icon bg-secondary-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg></div>
+                  <div class="breakdown-val" style="color:#FF6F00">51</div>
+                  <div class="breakdown-lbl">Customers</div>
+                </div>
+                <div class="breakdown-card" onclick="showSection('volunteers',null)" style="cursor:pointer;">
+                  <div class="breakdown-icon bg-warning-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                  <div class="breakdown-val" style="color:#F9A825">13</div>
+                  <div class="breakdown-lbl">Volunteers</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             2. USER MANAGEMENT (Admin: Manage | Super Admin: Full Control)
+             ═══════════════════════════════════════════ -->
+        <div id="sec-users" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                User Management
+              </h3>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select class="btn btn-outline btn-sm" style="border-radius:8px;padding:6px 12px;font-size:.82rem;cursor:pointer;">
+                  <option>All Roles</option>
+                  <option>FOOD_BUSINESS</option>
+                  <option>NGO</option>
+                  <option>CUSTOMER</option>
+                  <option>VOLUNTEER</option>
+                </select>
+                <button class="btn btn-primary btn-sm" onclick="showToast('info','Manage User','Opening user profile editor.')">+ Manage User</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Super Admin','Full User DB exported with audit hashes.')" title="Super Admin Only">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Full DB Export
+                </button>
+              </div>
+            </div>
+            <div class="panel-body" style="padding:0;">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Joined</th>
+                      <th>Admin Actions</th>
+                      <th class="superadmin-col">Super Admin Controls</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="color:#94a3b8;font-size:.8rem;">#U001</td>
+                      <td>
+                        <div class="user-cell">
+                          <div class="user-mini-avatar" style="background:linear-gradient(135deg,#2E7D32,#4CAF50);">HR</div>
+                          <span class="food-name">Hotel Rajmahal</span>
+                        </div>
+                      </td>
+                      <td style="color:#64748b;">rajmahal@email.com</td>
+                      <td><span class="badge badge-success">FOOD_BUSINESS</span></td>
+                      <td><span class="badge badge-success">Active</span></td>
+                      <td style="color:#64748b;">15 Aug 2026</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline" onclick="showToast('info','User','Viewing Hotel Rajmahal profile')">View Profile</button>
+                      </td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Role Modified','Role permission matrix adjusted for #U001')">Change Role</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('warning','User Suspended','Account #U001 suspended by Super Admin')">Suspend</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="color:#94a3b8;font-size:.8rem;">#U002</td>
+                      <td>
+                        <div class="user-cell">
+                          <div class="user-mini-avatar" style="background:linear-gradient(135deg,#0288D1,#29B6F6);">AF</div>
+                          <span class="food-name">Ahmedabad Food Bank</span>
+                        </div>
+                      </td>
+                      <td style="color:#64748b;">afb@ngo.org</td>
+                      <td><span class="badge badge-info">NGO</span></td>
+                      <td><span class="badge badge-success">Active</span></td>
+                      <td style="color:#64748b;">18 Aug 2026</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline" onclick="showToast('info','User','Viewing AFB NGO profile')">View Profile</button>
+                      </td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Security','Temporary 2FA bypass issued for #U002')">Reset 2FA</button>
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Impersonate','Super Admin access token generated')">Access As</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="color:#94a3b8;font-size:.8rem;">#U003</td>
+                      <td>
+                        <div class="user-cell">
+                          <div class="user-mini-avatar" style="background:linear-gradient(135deg,#F9A825,#FF6F00);">RS</div>
+                          <span class="food-name">Ravi Shah</span>
+                        </div>
+                      </td>
+                      <td style="color:#64748b;">ravi@vol.com</td>
+                      <td><span class="badge badge-warning">VOLUNTEER</span></td>
+                      <td><span class="badge badge-success">Active</span></td>
+                      <td style="color:#64748b;">20 Aug 2026</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline" onclick="showToast('info','Volunteer','Volunteer stats opened')">View Shifts</button>
+                      </td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('success','Volunteer','Approved for emergency medical transport')">Grant Badge</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('warning','Removed','User removed by Super Admin')">Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="color:#94a3b8;font-size:.8rem;">#U004</td>
+                      <td>
+                        <div class="user-cell">
+                          <div class="user-mini-avatar" style="background:linear-gradient(135deg,#7B1FA2,#CE93D8);">CL</div>
+                          <span class="food-name">Café Lotus</span>
+                        </div>
+                      </td>
+                      <td style="color:#64748b;">lotus@cafe.com</td>
+                      <td><span class="badge badge-success">FOOD_BUSINESS</span></td>
+                      <td><span class="badge badge-danger">Suspended</span></td>
+                      <td style="color:#64748b;">22 Aug 2026</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline" onclick="showToast('info','Status','Provider status reviewed.')">Review Note</button>
+                      </td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-success superadmin-action lock-in-admin" onclick="showToast('success','Reactivated','Account #U004 reactivated by Super Admin')">Reactivate</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Purged','Account & associated data permanently deleted')">Hard Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             3. FOOD PROVIDER MANAGEMENT
+             ═══════════════════════════════════════════ -->
+        <div id="sec-businesses" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Food Provider Management
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="showToast('info','Providers','Provider operational list refreshed.')">Refresh Providers</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Super Admin','Opening Add Provider dialog')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> + Add New Provider
+                </button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Business Name</th>
+                      <th>Contact Person</th>
+                      <th>Location</th>
+                      <th>FSSAI License</th>
+                      <th>Total Donated</th>
+                      <th>Admin: Monitor</th>
+                      <th class="superadmin-col">Super Admin: Full Control</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Hotel Rajmahal</strong></td>
+                      <td>Rajesh Mehta</td>
+                      <td>Navrangpura, Ahmedabad</td>
+                      <td><span class="badge badge-success">Verified FSSAI</span></td>
+                      <td>1,420 kg</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline" onclick="showToast('info','Monitor','Viewing daily donation timeline.')">Monitor Activity</button>
+                      </td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('success','Verified','FSSAI certified badge renewed')">Verify</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('warning','Suspended','Provider temporarily suspended')">Suspend</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Removed','Provider removed from network')">Remove</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>Café Lotus</strong></td>
+                      <td>Sneha Patel</td>
+                      <td>Vastrapur, Ahmedabad</td>
+                      <td><span class="badge badge-warning">Renewal Needed</span></td>
+                      <td>680 kg</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline" onclick="showToast('info','Message','Sent reminder notification to provider.')">Send Notice</button>
+                      </td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','License Updated','Updated FSSAI records.')">Update</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Suspended','Provider suspended for license expiration')">Suspend</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             4. NGO MANAGEMENT
+             ═══════════════════════════════════════════ -->
+        <div id="sec-ngos" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                NGO Management &amp; Verification
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="showToast('info','NGO','Operational distribution log exported')">Export Quota Log</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Super Admin','Opening NGO verification panel')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Full NGO Verification
+                </button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>NGO Name</th>
+                      <th>Beneficiary Type</th>
+                      <th>Capacity / Day</th>
+                      <th>Tax 80G Status</th>
+                      <th>Admin: Manage</th>
+                      <th class="superadmin-col">Super Admin: Full Verification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Ahmedabad Food Bank</strong></td>
+                      <td>Shelter Homes &amp; Slums</td>
+                      <td>500 Meals</td>
+                      <td><span class="badge badge-success">80G Verified</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','NGO','Viewing AFB distribution records')">Monitor Quota</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-success superadmin-action lock-in-admin" onclick="showToast('success','Approved','NGO license and tax status verified')">Approve / Verify</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('warning','Suspended','NGO allocation suspended')">Suspend</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>Roti Bank Gujarat</strong></td>
+                      <td>Hospital Relatives</td>
+                      <td>300 Meals</td>
+                      <td><span class="badge badge-info">Under Review</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','NGO','Viewing pending request log')">Monitor Status</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-success superadmin-action lock-in-admin" onclick="showToast('success','Verified','80G Document validated and approved')">Verify &amp; Approve</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Rejected','Registration rejected with reason notice')">Reject</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             5. CUSTOMER MANAGEMENT
+             ═══════════════════════════════════════════ -->
+        <div id="sec-customers" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>
+                Customer Management
+              </h3>
+              <span class="admin-badge">Admin: Manage Customers</span>
+              <span class="superadmin-badge">Super Admin: Full Control</span>
+            </div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Customer</th>
+                      <th>Phone</th>
+                      <th>Orders Claimed</th>
+                      <th>Wallet Credits</th>
+                      <th>Account Status</th>
+                      <th>Admin Actions</th>
+                      <th class="superadmin-col">Super Admin: Full Control</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Aarav Sharma</strong></td>
+                      <td>+91 98765 43210</td>
+                      <td>14 orders</td>
+                      <td>₹250</td>
+                      <td><span class="badge badge-success">Good Standing</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','Customer','Viewing customer claim history')">Order History</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Credit','Adjusted customer wallet credits')">Adjust Credits</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('warning','Banned','Customer banned by Super Admin')">Ban</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>Pooja Verma</strong></td>
+                      <td>+91 98123 45678</td>
+                      <td>8 orders</td>
+                      <td>₹0</td>
+                      <td><span class="badge badge-warning">Disputed Claim</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','Support','Support ticket opened for Pooja')">Resolve Ticket</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-success superadmin-action lock-in-admin" onclick="showToast('success','Refund','Dispute resolved with full credit refund')">Force Refund</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Purged','Customer data scrubbed in compliance with GDPR')">Scrub Data</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             6. VOLUNTEER MANAGEMENT
+             ═══════════════════════════════════════════ -->
+        <div id="sec-volunteers" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Volunteer Management &amp; Approvals
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="showToast('info','Volunteers','Active volunteer roster synced.')">View Shifts</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Super Admin','Opening Volunteer Approval Queue')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Full Approval Center
+                </button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Volunteer</th>
+                      <th>Service Area</th>
+                      <th>Vehicle Type</th>
+                      <th>Deliveries Done</th>
+                      <th>Verification</th>
+                      <th>Admin: Manage</th>
+                      <th class="superadmin-col">Super Admin: Approval &amp; Control</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Ravi Shah</strong></td>
+                      <td>West Ahmedabad</td>
+                      <td>Two Wheeler</td>
+                      <td>42 pickups</td>
+                      <td><span class="badge badge-success">Approved</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','Shift','Assigning local pickup shift to Ravi')">Assign Shift</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Zone','Service zone reassigned to North Zone')">Reassign Zone</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('warning','Suspended','Volunteer suspended for no-show')">Suspend</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>Meera Dave</strong></td>
+                      <td>SG Highway</td>
+                      <td>Four Wheeler</td>
+                      <td>0 (New Applicant)</td>
+                      <td><span class="badge badge-warning">Pending Approval</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','Docs','Reviewing driving license copy')">Review Docs</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-success superadmin-action lock-in-admin" onclick="showToast('success','Approved','Volunteer application approved by Super Admin')">Approve Application</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Rejected','Application rejected')">Reject</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             7. ACCOUNT VERIFICATION QUEUE
+             ═══════════════════════════════════════════ -->
+        <div id="sec-verification" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Account Verification Queue
+              </h3>
+              <span class="admin-badge">Admin: Verify Accounts</span>
+              <span class="superadmin-badge">Super Admin: Approve, Reject, Suspend, Reactivate</span>
+            </div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Account</th>
+                      <th>Type</th>
+                      <th>Submitted Documents</th>
+                      <th>Date</th>
+                      <th>Admin: Review</th>
+                      <th class="superadmin-col">Super Admin Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Hope Foundation NGO</strong></td>
+                      <td><span class="badge badge-info">NGO</span></td>
+                      <td>Trust Deed, 80G Certificate, PAN</td>
+                      <td>Today, 10:20 AM</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline" onclick="showToast('info','Review','Document PDF preview opened')">Verify Docs</button>
+                      </td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-success superadmin-action lock-in-admin" onclick="showToast('success','Account Approved','Hope Foundation approved & activated')">Approve Account</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Account Rejected','Rejection notice sent with document remarks')">Reject</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>Urban Bakery &amp; Treats</strong></td>
+                      <td><span class="badge badge-success">PROVIDER</span></td>
+                      <td>FSSAI License #20268819</td>
+                      <td>Yesterday</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline" onclick="showToast('info','Review','Checking FSSAI government registry')">Verify License</button>
+                      </td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-success superadmin-action lock-in-admin" onclick="showToast('success','Account Approved','Urban Bakery verified by Super Admin')">Approve Account</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('warning','Suspended','Account suspended pending re-audit')">Suspend</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             8. SURPLUS FOOD MANAGEMENT
+             ═══════════════════════════════════════════ -->
+        <div id="sec-food" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                Surplus Food Management
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <select class="btn btn-outline btn-sm" style="border-radius:8px;padding:6px 12px;font-size:.82rem;cursor:pointer;">
+                  <option>All Status</option>
+                  <option>Available</option>
+                  <option>Matched</option>
+                  <option>Delivered</option>
+                  <option>Wasted</option>
+                </select>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Super Admin','Food Allocation Rules console opened')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Full Allocation Control
+                </button>
+              </div>
+            </div>
+            <div class="panel-body" style="padding:0;">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Food Item</th>
+                      <th>Provider</th>
+                      <th>Qty</th>
+                      <th>Destination</th>
+                      <th>Status</th>
+                      <th>Admin: Manage</th>
+                      <th class="superadmin-col">Super Admin: Override &amp; Allocation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="color:#94a3b8;font-size:.8rem;">#F001</td>
+                      <td class="food-name">Dal Makhani + Jeera Rice</td>
+                      <td style="color:#64748b;">Hotel Rajmahal</td>
+                      <td>15 kg</td>
+                      <td><span class="badge badge-info">DONATE</span></td>
+                      <td><span class="badge badge-success">Matched</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','Food','Listing status confirmed')">Monitor Listing</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Re-allocated','Re-routed food to Ahmedabad Food Bank')">Force Allocate</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('warning','Expiry Extended','Extended consumption window by 2 hrs')">Edit Expiry</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="color:#94a3b8;font-size:.8rem;">#F002</td>
+                      <td class="food-name">Veg Pulao &amp; Raita</td>
+                      <td style="color:#64748b;">Café Lotus</td>
+                      <td>10 kg</td>
+                      <td><span class="badge badge-info">DONATE</span></td>
+                      <td><span class="badge badge-info">Available</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','Food','Listing flagged for NGO pickup')">Flag for Pickup</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-primary superadmin-action lock-in-admin" onclick="showToast('success','Direct Match','Instant allocation triggered')">Manual Match</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Disposed','Marked as unfit for safety')">Emergency Dispose</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             9. FOOD REQUESTS & FOOD MATCHING
+             ═══════════════════════════════════════════ -->
+        <div id="sec-requests" class="hidden">
+          <!-- Matching Engine Control -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Food Requests &amp; Intelligent Matching
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="showToast('info','Matching','Matching log refreshed')">Monitor Matching</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Algorithm Triggered','Matching Engine executed across 48 listings!')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Run Match Engine Now
+                </button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;">
+                <div>
+                  <h4 style="margin:0 0 10px;font-size:.88rem;color:#0f172a;">Matching Rules &amp; Distance Threshold</h4>
+                  <p style="font-size:.78rem;color:#64748b;margin:0 0 12px;">Admin can monitor matching. Super Admin has full control to adjust matching radius &amp; weighting rules.</p>
+                  <div style="display:flex;align-items:center;gap:12px;">
+                    <label style="font-size:.82rem;font-weight:600;">Max Radius:</label>
+                    <input type="range" min="1" max="50" value="10" id="rangeRadius" class="superadmin-config" style="width:140px;" oninput="document.getElementById('radiusVal').innerText=this.value+' km'" />
+                    <span id="radiusVal" style="font-weight:700;color:#2E7D32;">10 km</span>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;justify-content:center;gap:8px;">
+                  <button class="btn btn-outline btn-sm superadmin-action lock-in-admin" onclick="showToast('info','Rule Saved','Prioritizing elderly homes & orphanages')">Tune Priority Weighting</button>
+                  <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Rules Saved','Matching parameters reloaded into engine')">Save Matching Rules</button>
+                </div>
+              </div>
+
+              <!-- Requests Table -->
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Request ID</th>
+                      <th>Requester</th>
+                      <th>Requested Food / Type</th>
+                      <th>Needed By</th>
+                      <th>Match Score</th>
+                      <th>Admin: Manage</th>
+                      <th class="superadmin-col">Super Admin: Approve / Reject / Modify</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>#REQ-881</td>
+                      <td><strong>Ahmedabad Food Bank</strong></td>
+                      <td>Cooked Meals (15-20 kg)</td>
+                      <td>Today, 8:00 PM</td>
+                      <td><span class="badge badge-success">96% Match</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','Request','Viewing match candidate list')">Monitor Request</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-success superadmin-action lock-in-admin" onclick="showToast('success','Approved','Request #REQ-881 approved and dispatched to volunteer')">Approve</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Rejected','Request rejected with comment')">Reject</button>
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Modified','Requested quantity updated')">Modify</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>#REQ-882</td>
+                      <td><strong>Roti Bank Gujarat</strong></td>
+                      <td>Fresh Chapatis (100 pcs)</td>
+                      <td>Tomorrow Morning</td>
+                      <td><span class="badge badge-warning">72% Match</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','Request','Tracking potential donors nearby')">Monitor Request</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-success superadmin-action lock-in-admin" onclick="showToast('success','Force Matched','Assigned nearest donor listing')">Force Match</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Rejected','Request rejected')">Reject</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             10. PICKUP & DELIVERY MANAGEMENT
+             ═══════════════════════════════════════════ -->
+        <div id="sec-pickups" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                Pickup &amp; Delivery Management
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="showToast('info','Logistics','Delivery live GPS map refreshed')">Monitor Live Deliveries</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Super Admin','Emergency courier runner dispatched!')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Assign &amp; Control Pickups
+                </button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Delivery #</th>
+                      <th>Pickup From</th>
+                      <th>Deliver To</th>
+                      <th>Assigned Courier</th>
+                      <th>Current Stage</th>
+                      <th>Admin: Monitor</th>
+                      <th class="superadmin-col">Super Admin: Manage &amp; Override</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>#DLV-1024</strong></td>
+                      <td>Hotel Rajmahal</td>
+                      <td>Ahmedabad Food Bank</td>
+                      <td>Ravi Shah (Volunteer)</td>
+                      <td><span class="badge badge-info">In Transit</span></td>
+                      <td><a href="track.html?id=R001" class="btn btn-sm btn-outline">Track Live</a></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Reassigned','Delivery reassigned to backup driver')">Reassign</button>
+                          <button class="btn btn-sm btn-success superadmin-action lock-in-admin" onclick="showToast('success','OTP Bypassed','Delivery marked completed via Super Admin override')">Override OTP</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>#DLV-1025</strong></td>
+                      <td>Café Lotus</td>
+                      <td>Roti Bank</td>
+                      <td><span style="color:#ef4444;font-weight:600;">Unassigned</span></td>
+                      <td><span class="badge badge-warning">Awaiting Driver</span></td>
+                      <td><button class="btn btn-sm btn-outline" onclick="showToast('info','Pickups','Pickup status: Food ready at counter')">Monitor Pickup</button></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-primary superadmin-action lock-in-admin" onclick="showToast('success','Assigned','Driver assigned via priority dispatcher')">Direct Assign</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('error','Cancelled','Delivery operation cancelled')">Cancel Order</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             11. NOTIFICATIONS MANAGEMENT
+             ═══════════════════════════════════════════ -->
+        <div id="sec-notifications" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                System Notifications &amp; Broadcasts
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="showToast('success','Cleared','All notifications marked as read.')">Mark All Read</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('warning','Emergency Alert','Emergency flash banner sent to all mobile apps!')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Broadcast System Alert
+                </button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+                <!-- Admin Notification Sender -->
+                <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <h4 style="margin:0;font-size:.88rem;color:#0f172a;">Admin: Send Operational Notification</h4>
+                    <span class="admin-badge">Admin</span>
+                  </div>
+                  <div class="form-group">
+                    <label>Target Audience</label>
+                    <select><option>All Volunteers in West Zone</option><option>All Active Food Businesses</option><option>Single User</option></select>
+                  </div>
+                  <div class="form-group">
+                    <label>Message Content</label>
+                    <textarea rows="2" placeholder="Enter routine operational update..."></textarea>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="showToast('success','Sent','Operational notification sent.')">Send Routine Alert</button>
+                </div>
+
+                <!-- Super Admin System-wide Configuration -->
+                <div style="background:#fef2f2;padding:16px;border-radius:12px;border:1px solid #fecaca;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <h4 style="margin:0;font-size:.88rem;color:#991b1b;">Super Admin: System Notification Config</h4>
+                    <span class="superadmin-badge">Super Admin</span>
+                  </div>
+                  <div class="form-group">
+                    <label>SMS / WhatsApp Gateway Template</label>
+                    <select class="superadmin-config"><option>OTP Delivery Verification v2</option><option>Critical Surplus Emergency v1</option></select>
+                  </div>
+                  <div class="toggle-row superadmin-action lock-in-admin">
+                    <input type="checkbox" id="chkPush" checked />
+                    <label for="chkPush">Enable Global Push Notification Gateway</label>
+                  </div>
+                  <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Configured','System-wide notification rules saved.')">Save Global Config</button>
+                </div>
+              </div>
+
+              <!-- Notifications Log -->
+              <div class="notif-list">
+                <div class="notif-item">
+                  <div class="notif-icon bg-primary-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                  <div class="notif-text"><div class="title">Operational Notice: Food Safety Protocol update issued to all registered providers</div><div class="time">1 hour ago</div></div>
+                  <div class="unread-dot"></div>
+                </div>
+                <div class="notif-item">
+                  <div class="notif-icon bg-danger-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                  <div class="notif-text"><div class="title">System Broadcast [SUPER_ADMIN]: Scheduled server maintenance tonight 2:00 AM - 3:00 AM IST</div><div class="time">3 hours ago</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             12. REPORTS & ANALYTICS
+             ═══════════════════════════════════════════ -->
+        <div id="sec-analytics" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Reports &amp; Deep Analytics
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="showToast('info','Reports','Operational daily summary CSV ready')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Admin: Operational Reports
+                </button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Super Admin','Comprehensive Executive Analytics generated!')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Super Admin: System-wide Analytics
+                </button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:28px;">
+                <div>
+                  <h4 style="margin-bottom:16px;font-size:.92rem;font-weight:700;color:#0f172a;">Food Distribution Ratio</h4>
+                  <div style="display:flex;flex-direction:column;gap:14px;">
+                    <div>
+                      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem;">
+                        <span style="color:#374151;">Donated (Free)</span><span style="font-weight:700;color:#2E7D32">62%</span>
+                      </div>
+                      <div class="progress"><div class="progress-bar" style="width:62%;"></div></div>
+                    </div>
+                    <div>
+                      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem;">
+                        <span style="color:#374151;">Sold (Discounted Marketplace)</span><span style="font-weight:700;color:#FF6F00">18%</span>
+                      </div>
+                      <div class="progress"><div class="progress-bar orange" style="width:18%;"></div></div>
+                    </div>
+                    <div>
+                      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem;">
+                        <span style="color:#374151;">Distributed to Animal Shelters</span><span style="font-weight:700;color:#0288D1">14%</span>
+                      </div>
+                      <div class="progress"><div class="progress-bar" style="width:14%;background:#0288D1;"></div></div>
+                    </div>
+                    <div>
+                      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem;">
+                        <span style="color:#374151;">Wasted / Uncollected</span><span style="font-weight:700;color:#D32F2F">6%</span>
+                      </div>
+                      <div class="progress"><div class="progress-bar" style="width:6%;background:#D32F2F;"></div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style="margin-bottom:16px;font-size:.92rem;font-weight:700;color:#0f172a;">Monthly Trend &amp; Impact Analysis</h4>
+                  <div class="chart-placeholder" style="height:160px;">
+                    <div class="chart-bars" style="height:110px;">
+                      <div class="chart-bar" style="height:60%;"></div>
+                      <div class="chart-bar" style="height:80%;"></div>
+                      <div class="chart-bar" style="height:50%;"></div>
+                      <div class="chart-bar orange" style="height:25%;"></div>
+                      <div class="chart-bar" style="height:90%;"></div>
+                      <div class="chart-bar" style="height:70%;"></div>
+                    </div>
+                    <div class="chart-legend">
+                      <span style="display:flex;align-items:center;gap:6px;"><span class="legend-dot" style="background:#4CAF50;"></span> Rescued</span>
+                      <span style="display:flex;align-items:center;gap:6px;"><span class="legend-dot" style="background:#FF6F00;"></span> Wasted</span>
+                      <span style="font-size:.75rem;color:#94a3b8;">Aug - Sep Trend</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             13. ROLE MANAGEMENT & 14. PERMISSIONS
+             ═══════════════════════════════════════════ -->
+        <div id="sec-roles" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Role Management &amp; Permissions Matrix
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="openModal('modal-role-matrix')">View Privilege Matrix</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Super Admin','Opening Create New Role dialog')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> + Create Custom Role
+                </button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <p style="font-size:.84rem;color:#64748b;margin-bottom:16px;">
+                <strong>Admin Mode:</strong> Limited role management. Use assigned permissions.<br/>
+                <strong>Super Admin Mode:</strong> Create, assign, modify, and remove roles with granular permission control.
+              </p>
+
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Role Name</th>
+                      <th>Scope</th>
+                      <th>Assigned Users</th>
+                      <th>Permissions</th>
+                      <th>Admin Status</th>
+                      <th class="superadmin-col">Super Admin: Modify / Delete Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="badge badge-danger" style="font-size:.78rem;">SUPER_ADMIN</span></td>
+                      <td>System-Wide Root</td>
+                      <td>2 Users</td>
+                      <td>All 19 Modules • Full Read/Write/Delete/Configure</td>
+                      <td><span class="badge badge-success">Assigned</span></td>
+                      <td class="superadmin-col">
+                        <button class="btn btn-sm btn-outline" disabled style="opacity:.5;">Protected System Role</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-success" style="font-size:.78rem;">ADMIN (OPERATIONS)</span></td>
+                      <td>Daily Operations</td>
+                      <td>6 Users</td>
+                      <td>Operational monitoring, dispatch, listing review, reports</td>
+                      <td><span class="badge badge-info">Active</span></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Permissions','Permissions updated for Admin role')">Edit Permissions</button>
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Staff','Assigned 2 new team members')">Assign Users</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-purple" style="font-size:.78rem;">REGIONAL_COORDINATOR</span></td>
+                      <td>City / Zone Level</td>
+                      <td>4 Users</td>
+                      <td>Zone pickups, volunteer coordination, matching alerts</td>
+                      <td><span class="badge badge-neutral">Limited</span></td>
+                      <td class="superadmin-col">
+                        <div style="display:flex;gap:4px;">
+                          <button class="btn btn-sm btn-outline superadmin-action lock-in-admin" onclick="showToast('info','Modified','Updated zone radius permissions')">Edit</button>
+                          <button class="btn btn-sm btn-danger superadmin-action lock-in-admin" onclick="showToast('warning','Role Removed','Regional Coordinator role deleted')">Remove Role</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             15. SECURITY CENTER (Security & Access Control)
+             ═══════════════════════════════════════════ -->
+        <div id="sec-security" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Security &amp; Threat Protection
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="showToast('info','Security','Failed login attempt log refreshed.')">Monitor Security</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('error','Killswitch Triggered','All active sessions invalidated. Re-authentication forced.')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Terminate All Active Sessions
+                </button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+                <!-- Activity monitoring (Admin & Super Admin) -->
+                <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;">
+                  <h4 style="margin:0 0 10px;font-size:.88rem;color:#0f172a;">Admin: Monitor Security Activities</h4>
+                  <p style="font-size:.78rem;color:#64748b;">Review suspicious logins, failed OTPs, and unauthorized attempts.</p>
+                  <div class="notif-list">
+                    <div class="notif-item">
+                      <div class="notif-icon bg-warning-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+                      <div class="notif-text"><div class="title">3 failed password attempts for admin@foodloop.in</div><div class="time">IP: 182.74.12.9 • 20 min ago</div></div>
+                    </div>
+                    <div class="notif-item">
+                      <div class="notif-icon bg-success-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                      <div class="notif-text"><div class="title">SSL Certificate auto-renewed: Valid for 90 days</div><div class="time">Yesterday, 11:00 PM</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Super Admin Security Config -->
+                <div style="background:#fef2f2;padding:16px;border-radius:12px;border:1px solid #fecaca;">
+                  <h4 style="margin:0 0 10px;font-size:.88rem;color:#991b1b;">Super Admin: Configure &amp; Control Security</h4>
+                  <p style="font-size:.78rem;color:#64748b;">Firewall rules, IP blacklists, 2FA enforcement, and API access.</p>
+                  <div class="toggle-row superadmin-action lock-in-admin">
+                    <input type="checkbox" id="chk2fa" checked />
+                    <label for="chk2fa">Enforce 2-Factor Authentication for all Admin Accounts</label>
+                  </div>
+                  <div class="toggle-row superadmin-action lock-in-admin">
+                    <input type="checkbox" id="chkIpBlock" checked />
+                    <label for="chkIpBlock">Auto-block IPs exceeding 5 failed login attempts</label>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Blacklist','Added IP 182.74.12.9 to firewall blocklist')">Block Malicious IP</button>
+                    <button class="btn btn-outline btn-sm superadmin-action lock-in-admin" onclick="showToast('info','API Key','Rotated production API tokens')">Rotate API Keys</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             16. AUDIT LOGS
+             ═══════════════════════════════════════════ -->
+        <div id="sec-audit" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                Audit Logs &amp; Traceability
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="showToast('info','Audit Logs','Filtered to last 24 hours')">Filter Logs</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Audit Archive','Complete tamper-evident audit trail exported (.enc)')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Export Complete Audit Trail
+                </button>
+                <button class="btn btn-danger btn-sm superadmin-action lock-in-admin" onclick="showToast('warning','Logs Purged','Archived and purged audit entries older than 90 days')">
+                  Purge &gt;90d
+                </button>
+              </div>
+            </div>
+            <div class="panel-body" style="padding:0;">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Timestamp</th>
+                      <th>Actor</th>
+                      <th>Role</th>
+                      <th>Event Action</th>
+                      <th>Target Entity</th>
+                      <th>IP Address</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="color:#64748b;">Today, 20:54:12</td>
+                      <td><strong>Super Admin</strong></td>
+                      <td><span class="badge badge-danger">SUPER_ADMIN</span></td>
+                      <td>Updated Matching Rules Distance (10km)</td>
+                      <td>Settings: AlgEngine</td>
+                      <td>127.0.0.1</td>
+                      <td><span class="badge badge-success">Success</span></td>
+                    </tr>
+                    <tr>
+                      <td style="color:#64748b;">Today, 19:30:05</td>
+                      <td><strong>Admin User</strong></td>
+                      <td><span class="badge badge-success">ADMIN</span></td>
+                      <td>Flagged Listing #F003 for Disposal</td>
+                      <td>FoodListing #F003</td>
+                      <td>192.168.1.14</td>
+                      <td><span class="badge badge-success">Success</span></td>
+                    </tr>
+                    <tr>
+                      <td style="color:#64748b;">Today, 18:15:44</td>
+                      <td><strong>Super Admin</strong></td>
+                      <td><span class="badge badge-danger">SUPER_ADMIN</span></td>
+                      <td>Account Verification Approved</td>
+                      <td>NGO #AFB-002</td>
+                      <td>127.0.0.1</td>
+                      <td><span class="badge badge-success">Success</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             17. SYSTEM MONITORING
+             ═══════════════════════════════════════════ -->
+        <div id="sec-monitoring" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                System Monitoring &amp; Infrastructure Operations
+              </h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="showToast('info','Monitoring','Server metrics health refreshed')">Admin: Monitor Status</button>
+                <button class="btn btn-super btn-sm superadmin-action lock-in-admin" onclick="showToast('success','Workers Restarted','Background food matching workers restarted successfully!')">
+                  <span class="superadmin-badge" style="background:#fff;color:#dc2626;padding:1px 4px;">👑</span> Restart Background Workers
+                </button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px;">
+                <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;">
+                  <div style="font-size:.78rem;color:#64748b;">API Gateway Uptime</div>
+                  <div style="font-size:1.6rem;font-weight:800;color:#16a34a;margin:4px 0;">99.98%</div>
+                  <div style="font-size:.75rem;color:#16a34a;">● All systems operational</div>
+                </div>
+                <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;">
+                  <div style="font-size:.78rem;color:#64748b;">Matching Worker Latency</div>
+                  <div style="font-size:1.6rem;font-weight:800;color:#2E7D32;margin:4px 0;">180 ms</div>
+                  <div style="font-size:.75rem;color:#64748b;">Avg execution time</div>
+                </div>
+                <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;">
+                  <div style="font-size:.78rem;color:#64748b;">Database Connection Pool</div>
+                  <div style="font-size:1.6rem;font-weight:800;color:#0288D1;margin:4px 0;">18 / 100</div>
+                  <div style="font-size:.75rem;color:#0288D1;">Healthy utilization</div>
+                </div>
+                <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;">
+                  <div style="font-size:.78rem;color:#64748b;">Redis Cache Hit Ratio</div>
+                  <div style="font-size:1.6rem;font-weight:800;color:#7c3aed;margin:4px 0;">94.2%</div>
+                  <div style="font-size:.75rem;color:#7c3aed;">High performance</div>
+                </div>
+              </div>
+
+              <!-- Super Admin Emergency Actions -->
+              <div style="background:#fff1f2;padding:16px;border-radius:12px;border:1px solid #fecdd3;" class="superadmin-action lock-in-admin">
+                <h4 style="margin:0 0 8px;font-size:.88rem;color:#9f1239;">Super Admin Infrastructure Controls</h4>
+                <p style="font-size:.78rem;color:#64748b;margin-bottom:12px;">Full control to purge cache, toggle maintenance mode, or restart background processing queues.</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button class="btn btn-outline btn-sm" onclick="showToast('info','Cache Purged','Redis in-memory cache flushed')">Flush Redis Cache</button>
+                  <button class="btn btn-danger btn-sm" onclick="showToast('warning','Maintenance Mode','Maintenance mode enabled for 15 minutes')">Toggle Maintenance Mode</button>
+                  <button class="btn btn-super btn-sm" onclick="showToast('success','DB Pool Reset','Connection pool cycled cleanly')">Cycle DB Connections</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             18. SYSTEM SETTINGS
+             ═══════════════════════════════════════════ -->
+        <div id="sec-settings" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                System Settings &amp; Configuration
+              </h3>
+              <div>
+                <button class="btn btn-primary btn-sm superadmin-action lock-in-admin" id="btnSaveSettings" onclick="showToast('success','Saved','System settings updated successfully.')">
+                  Save Configuration
+                </button>
+              </div>
+            </div>
+            <div class="panel-body" style="max-width:680px;">
+
+              <!-- Admin Notice when locked -->
+              <div id="settingsAdminNotice" class="hidden" style="padding:12px 16px;background:#fef3c7;border:1px solid #fde68a;border-radius:10px;margin-bottom:18px;font-size:.84rem;color:#92400e;">
+                🔒 <strong>Limited Settings Access (Admin Mode):</strong> Core system configurations are read-only. Switch to <strong>Super Admin</strong> in the topbar to edit system settings.
+              </div>
+
+              <div class="form-group">
+                <label>Food Eligibility Window (hours)</label>
+                <input type="number" id="cfgWindow" class="sys-setting-input" value="8" min="1" max="72" />
+              </div>
+              <div class="form-group">
+                <label>Maximum Matching Distance (km)</label>
+                <input type="number" id="cfgDistance" class="sys-setting-input" value="10" min="1" />
+              </div>
+              <div class="form-group">
+                <label>Delivery OTP Expiry (minutes)</label>
+                <input type="number" id="cfgOtp" class="sys-setting-input" value="30" min="5" />
+              </div>
+              <div class="form-group">
+                <label>System Email Gateway</label>
+                <input type="email" id="cfgEmail" class="sys-setting-input" value="admin@foodloop.in" />
+              </div>
+              <div class="form-group">
+                <label>Primary Operating City</label>
+                <input type="text" id="cfgCity" class="sys-setting-input" value="Ahmedabad" />
+              </div>
+              <div class="toggle-row">
+                <input type="checkbox" id="auto-match" class="sys-setting-input" checked />
+                <label for="auto-match">Enable automatic food matching engine</label>
+              </div>
+              <div class="toggle-row">
+                <input type="checkbox" id="expiry-notif" class="sys-setting-input" checked />
+                <label for="expiry-notif">Enable expiry alert notifications (2 hours before shelf-life ends)</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       MODAL: 19-MODULE TASK CAPABILITY MATRIX
+       ═══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-role-matrix">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Admin vs Super Admin Privilege Matrix
+        </h3>
+        <button type="button" class="modal-close" onclick="closeModal('modal-role-matrix')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.85rem;color:#64748b;margin-bottom:16px;">
+          Review the complete task allocation and privileges per module in FoodLoop. Toggle between roles anytime using the switch button in the topbar.
+        </p>
+        <div class="table-wrap">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>Module / Task</th>
+                <th class="col-admin">Admin</th>
+                <th class="col-super">Super Admin</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="module-name">User Management</td>
+                <td><span class="admin-desc">Manage users</span></td>
+                <td><span class="super-desc">Full control over all users</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Food Provider Management</td>
+                <td><span class="admin-desc">Manage and monitor providers</span></td>
+                <td><span class="super-desc">Add, verify, update, suspend, or remove providers</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">NGO Management</td>
+                <td><span class="admin-desc">Manage NGOs</span></td>
+                <td><span class="super-desc">Full NGO management and verification</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Customer Management</td>
+                <td><span class="admin-desc">Manage customers</span></td>
+                <td><span class="super-desc">Full customer management</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Volunteer Management</td>
+                <td><span class="admin-desc">Manage volunteers</span></td>
+                <td><span class="super-desc">Full volunteer management and approval</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Surplus Food Management</td>
+                <td><span class="admin-desc">Monitor and manage food listings</span></td>
+                <td><span class="super-desc">Full control over food listings and allocation</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Food Requests</td>
+                <td><span class="admin-desc">Monitor and manage requests</span></td>
+                <td><span class="super-desc">Approve, reject, modify, and monitor requests</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Food Matching</td>
+                <td><span class="admin-desc">Monitor food-to-NGO/customer matching</span></td>
+                <td><span class="super-desc">Control and manage matching rules/process</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Pickup Management</td>
+                <td><span class="admin-desc">Monitor pickups</span></td>
+                <td><span class="super-desc">Assign and manage pickups</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Delivery Management</td>
+                <td><span class="admin-desc">Monitor deliveries</span></td>
+                <td><span class="super-desc">Manage and control delivery operations</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Notifications</td>
+                <td><span class="admin-desc">Send/manage notifications</span></td>
+                <td><span class="super-desc">Configure and manage system-wide notifications</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Reports &amp; Analytics</td>
+                <td><span class="admin-desc">View operational reports</span></td>
+                <td><span class="super-desc">Generate and manage system-wide analytics</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Role Management</td>
+                <td><span class="admin-desc">Limited role management</span></td>
+                <td><span class="super-desc">Create, assign, modify, and remove roles</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Permissions</td>
+                <td><span class="admin-desc">Use assigned permissions</span></td>
+                <td><span class="super-desc">Full permission and access control</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Account Verification</td>
+                <td><span class="admin-desc">Verify accounts</span></td>
+                <td><span class="super-desc">Approve, reject, suspend, or reactivate accounts</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Security</td>
+                <td><span class="admin-desc">Monitor security activities</span></td>
+                <td><span class="super-desc">Configure and control system security</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">System Settings</td>
+                <td><span class="admin-desc">Limited settings access</span></td>
+                <td><span class="super-desc">Full system configuration</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">Audit Logs</td>
+                <td><span class="admin-desc">View activity logs</span></td>
+                <td><span class="super-desc">View and manage complete audit logs</span></td>
+              </tr>
+              <tr>
+                <td class="module-name">System Monitoring</td>
+                <td><span class="admin-desc">Monitor daily operations</span></td>
+                <td><span class="super-desc">Monitor and control overall system operation</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:20px;text-align:right;">
+          <button class="btn btn-primary" onclick="closeModal('modal-role-matrix')">Got it</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script>
+    // ── Navigation Section Controller ──
+    const pageTitles = {
+      dashboard: 'Admin Dashboard',
+      analytics: 'Reports & Analytics',
+      monitoring: 'System Monitoring & Operations',
+      users: 'User Management',
+      businesses: 'Food Provider Management',
+      ngos: 'NGO Management & Verification',
+      customers: 'Customer Management',
+      volunteers: 'Volunteer Management',
+      verification: 'Account Verification Queue',
+      food: 'Surplus Food Management',
+      requests: 'Food Requests & Matching',
+      pickups: 'Pickup & Delivery Operations',
+      roles: 'Role Management & Permissions',
+      security: 'Security & Access Control',
+      audit: 'Audit Logs & Traceability',
+      notifications: 'System Notifications & Broadcasts',
+      settings: 'System Settings'
+    };
+
+    function showSection(name, link) {
+      document.querySelectorAll("[id^='sec-']").forEach(s => s.classList.add('hidden'));
+      const el = document.getElementById('sec-' + name);
+      if (el) el.classList.remove('hidden');
+      document.getElementById('pageTitle').textContent = pageTitles[name] || 'Admin Console';
+      if (link) {
+        document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+      }
+      if (window.innerWidth < 900) document.getElementById('sidebar').classList.remove('open');
+    }
+
+    // ── ROLE STATE CONTROLLER (Admin vs Super Admin) ──
+    let currentRole = localStorage.getItem('foodloop_admin_role') || 'superadmin';
+
+    function setRole(role, notify = true) {
+      currentRole = role;
+      localStorage.setItem('foodloop_admin_role', role);
+
+      const isSuper = (role === 'superadmin');
+      const body = document.body;
+
+      // Update body class
+      body.classList.toggle('role-superadmin-mode', isSuper);
+      body.classList.toggle('role-admin-mode', !isSuper);
+
+      // Update Pill Buttons
+      const btnAdmin = document.getElementById('roleBtnAdmin');
+      const btnSuper = document.getElementById('roleBtnSuperAdmin');
+      if (btnAdmin && btnSuper) {
+        btnAdmin.classList.toggle('active', !isSuper);
+        btnSuper.classList.toggle('active', isSuper);
+      }
+
+      // Update Indicator Pill
+      const indicator = document.getElementById('roleIndicator');
+      const indicatorText = document.getElementById('roleIndicatorText');
+      if (indicator && indicatorText) {
+        if (isSuper) {
+          indicator.className = 'role-indicator superadmin-mode';
+          indicatorText.textContent = 'Super Admin: Full Control';
+        } else {
+          indicator.className = 'role-indicator admin-mode';
+          indicatorText.textContent = 'Admin: Operational Mode';
+        }
+      }
+
+      // Update Sidebar Profile Card
+      const sidebarAvatar = document.getElementById('sidebarAvatar');
+      const sidebarName = document.getElementById('sidebarUserName');
+      const sidebarRoleTag = document.getElementById('sidebarRoleTag');
+      const sidebarSub = document.getElementById('sidebarRoleSub');
+      if (sidebarAvatar) sidebarAvatar.textContent = isSuper ? 'SA' : 'AD';
+      if (sidebarName) sidebarName.textContent = isSuper ? 'Super Admin' : 'Operations Admin';
+      if (sidebarRoleTag) {
+        sidebarRoleTag.textContent = isSuper ? 'SUPER_ADMIN' : 'ADMIN';
+      }
+      if (sidebarSub) {
+        sidebarSub.textContent = isSuper ? 'Super Admin Console' : 'Operations Console';
+      }
+
+      // Update Topbar User Profile
+      const topAvatar = document.getElementById('topbarAvatar');
+      const topName = document.getElementById('topbarUserName');
+      if (topAvatar) topAvatar.textContent = isSuper ? 'SA' : 'AD';
+      if (topName) topName.textContent = isSuper ? 'Super Admin' : 'Operations Admin';
+
+      // Update Context Alert Banner
+      const banner = document.getElementById('roleContextBanner');
+      const bannerMain = document.getElementById('bannerMainText');
+      const bannerSub = document.getElementById('bannerSubText');
+      if (banner && bannerMain && bannerSub) {
+        if (isSuper) {
+          banner.className = 'role-context-banner superadmin';
+          bannerMain.innerHTML = 'Active Session: <strong>Super Admin Mode</strong> (Full Elevated Privileges)';
+          bannerSub.textContent = 'Full control over all users, security, verification, matching rules & system configuration.';
+        } else {
+          banner.className = 'role-context-banner admin';
+          bannerMain.innerHTML = 'Active Session: <strong>Admin Mode</strong> (Operational Management)';
+          bannerSub.textContent = 'Operational management view: monitor food listings, dispatch deliveries, and view reports.';
+        }
+      }
+
+      // Update System Settings Accessibility
+      const settingsInputs = document.querySelectorAll('.sys-setting-input');
+      const settingsNotice = document.getElementById('settingsAdminNotice');
+      const btnSaveSettings = document.getElementById('btnSaveSettings');
+      settingsInputs.forEach(input => {
+        input.disabled = !isSuper;
+      });
+      if (settingsNotice) settingsNotice.classList.toggle('hidden', isSuper);
+      if (btnSaveSettings) {
+        btnSaveSettings.disabled = !isSuper;
+        if (!isSuper) {
+          btnSaveSettings.title = 'Requires Super Admin privileges to save system configuration';
+        } else {
+          btnSaveSettings.title = '';
+        }
+      }
+
+      // Notify User
+      if (notify) {
+        if (isSuper) {
+          showToast('success', 'Switched to Super Admin', 'Full control over all 19 modules, security, and configurations active.');
+        } else {
+          showToast('info', 'Switched to Admin', 'Operational view enabled. Sensitive controls and system settings are now locked.');
+        }
+      }
+    }
+
+    function toggleRoleShortcut() {
+      setRole(currentRole === 'superadmin' ? 'admin' : 'superadmin');
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      setRole(currentRole, false);
+    });
+
+    // ── Toast Notification System ──
+    const toastIcons = {
+      success: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+      error:   '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+      info:    '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+      warning: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+    };
+
+    function showToast(type, title, msg) {
+      const container = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast ' + type;
+      t.innerHTML = (toastIcons[type] || toastIcons.info) + '<div class="toast-body"><div class="t-title">' + title + '</div><div class="t-msg">' + msg + '</div></div>';
+      container.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateX(20px)';
+        t.style.transition = 'all .3s';
+        setTimeout(() => t.remove(), 300);
+      }, 3500);
+    }
+
+    // ── Modal Helper ──
+    function openModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.classList.add('active');
+    }
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.classList.remove('active');
+    }
+  </script>
+</body>
+</html>

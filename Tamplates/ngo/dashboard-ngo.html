@@ -1,0 +1,643 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NGO Dashboard – FoodLoop</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2'><path d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z'/></svg>" />
+  <style>
+    body { background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; }
+    .dash-header { background: #0f1923; color: #fff; position: sticky; top: 0; z-index: 500; box-shadow: 0 4px 20px rgba(0,0,0,.15); border-bottom: 1px solid #1e2d3d; }
+    .header-top { max-width: 1400px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .brand-section { display: flex; align-items: center; gap: 12px; }
+    .brand-logo { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg,#059669,#10b981); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(16,185,129,.35); color: #fff; }
+    .brand-logo svg { width: 20px; height: 20px; }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-text .title { color: #f8fafc; font-size: 1.1rem; font-weight: 800; letter-spacing: .3px; }
+    .brand-text .subtitle { color: #64748b; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .header-btn { width: 38px; height: 38px; border-radius: 9px; background: #1a2840; border: 1px solid #1e2d3d; color: #94a3b8; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: all .2s; }
+    .header-btn:hover { background: #24344d; color: #f8fafc; }
+    .header-btn svg { width: 18px; height: 18px; }
+    .notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: #ef4444; border: 1.5px solid #0f1923; border-radius: 50%; }
+    .user-profile-pill { display: flex; align-items: center; gap: 10px; padding: 5px 12px 5px 6px; background: #1a2840; border: 1px solid #1e2d3d; border-radius: 30px; cursor: pointer; transition: all .2s; }
+    .user-profile-pill:hover { background: #24344d; }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#059669,#10b981); display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 800; color: #fff; }
+    .user-details { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
+    .user-details .user-name { font-size: .85rem; font-weight: 700; color: #f1f5f9; }
+    .user-details .user-role { font-size: .65rem; font-weight: 600; color: #34d399; text-transform: uppercase; }
+    .header-nav { max-width: 1400px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .header-nav::-webkit-scrollbar { display: none; }
+    .nav-item { display: flex; align-items: center; gap: 8px; padding: 12px 16px; color: #94a3b8; font-size: .88rem; font-weight: 600; white-space: nowrap; border-bottom: 2px solid transparent; transition: all .2s; cursor: pointer; }
+    .nav-item-icon svg { width: 17px; height: 17px; color: #64748b; transition: color .2s; }
+    .nav-item:hover { color: #f1f5f9; }
+    .nav-item:hover .nav-item-icon svg { color: #94a3b8; }
+    .nav-item.active { color: #34d399; border-bottom-color: #34d399; background: rgba(52,211,153,.06); }
+    .nav-item.active .nav-item-icon svg { color: #34d399; }
+    .nav-badge { font-size: .68rem; padding: 2px 7px; border-radius: 10px; background: #059669; color: #fff; font-weight: 700; }
+    .page-subheader { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; box-shadow: 0 1px 3px rgba(0,0,0,.03); }
+    .subheader-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .subheader-title h1 { font-size: 1.25rem; font-weight: 800; color: #0f172a; }
+    .subheader-title p { font-size: .82rem; color: #64748b; margin-top: 2px; }
+    .dash-container { max-width: 1400px; width: 100%; margin: 0 auto; padding: 24px; flex: 1; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 24px; }
+    .stat-card { background: #fff; border-radius: 14px; padding: 20px; display: flex; align-items: flex-start; gap: 16px; border: 1px solid #e9f0e9; box-shadow: 0 1px 4px rgba(0,0,0,.05); transition: box-shadow .2s, transform .2s; }
+    .stat-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateY(-2px); }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stat-icon svg { width: 24px; height: 24px; }
+    .bg-primary-soft { background: rgba(5,150,105,.1); } .bg-primary-soft svg { color: #059669; }
+    .bg-success-soft { background: rgba(16,185,129,.1); } .bg-success-soft svg { color: #10b981; }
+    .bg-info-soft { background: rgba(2,136,209,.1); } .bg-info-soft svg { color: #0288D1; }
+    .bg-warning-soft { background: rgba(249,168,37,.12); } .bg-warning-soft svg { color: #d97706; }
+    .stat-info .value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+    .stat-info .label { font-size: .8rem; color: #64748b; font-weight: 500; margin-top: 2px; }
+    .stat-info .change { font-size: .75rem; margin-top: 6px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .change.up { color: #16a34a; }
+    .dash-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .panel { background: #fff; border-radius: 14px; border: 1px solid #e9f0e9; box-shadow: 0 1px 4px rgba(0,0,0,.05); overflow: hidden; margin-bottom: 20px; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px 14px; border-bottom: 1px solid #f1f5f9; }
+    .panel-header h3 { font-size: .95rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+    .panel-header h3 svg { width: 18px; height: 18px; color: #64748b; }
+    .panel-body { padding: 22px; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+    .badge svg { width: 12px; height: 12px; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-info { background: #dbeafe; color: #1d4ed8; }
+    .badge-warning { background: #fef9c3; color: #854d0e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-neutral { background: #f1f5f9; color: #475569; }
+    @media(max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body>
+  <!-- HORIZONTAL HEADER -->
+  <header class="dash-header">
+    <div class="header-top">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="title">FoodLoop</span>
+          <span class="subtitle">NGO Portal</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="header-btn" title="Notifications" onclick="showSection('notifications', null)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="notif-dot"></span>
+        </button>
+
+        <a href="index.html" class="header-btn" title="Back to Website">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </a>
+
+        <div class="user-profile-pill" onclick="showSection('profile', null)">
+          <div class="user-avatar">AF</div>
+          <div class="user-details">
+            <span class="user-name">Ahmedabad Food Bank</span>
+            <span class="user-role">NGO Partner</span>
+          </div>
+        </div>
+
+        <a href="login.html" class="header-btn" title="Sign Out">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- HORIZONTAL NAVIGATION BAR -->
+    <nav class="header-nav">
+      <a href="#" class="nav-item active" onclick="showSection('dashboard', this); return false;">
+        <span class="nav-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </span>
+        <span>Dashboard</span>
+      </a>
+
+      <a href="#" class="nav-item" onclick="showSection('available', this); return false;">
+        <span class="nav-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+          </svg>
+        </span>
+        <span>Available Food</span>
+        <span class="nav-badge">8</span>
+      </a>
+
+      <a href="#" class="nav-item" onclick="showSection('requests', this); return false;">
+        <span class="nav-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </span>
+        <span>My Requests</span>
+        <span class="nav-badge">3</span>
+      </a>
+
+      <a href="#" class="nav-item" onclick="showSection('deliveries', this); return false;">
+        <span class="nav-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+        </span>
+        <span>Incoming Deliveries</span>
+      </a>
+
+      <a href="#" class="nav-item" onclick="showSection('history', this); return false;">
+        <span class="nav-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
+        <span>Received History</span>
+      </a>
+
+      <a href="#" class="nav-item" onclick="showSection('profile', this); return false;">
+        <span class="nav-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </span>
+        <span>NGO Profile</span>
+      </a>
+
+      <a href="#" class="nav-item" onclick="showSection('notifications', this); return false;">
+        <span class="nav-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </span>
+        <span>Notifications</span>
+        <span class="nav-badge">4</span>
+      </a>
+    </nav>
+  </header>
+
+  <!-- SUBHEADER -->
+  <div class="page-subheader">
+    <div class="subheader-inner">
+      <div class="subheader-title">
+        <h1 id="pageTitle">NGO Dashboard</h1>
+        <p>Ahmedabad Food Bank · Manage surplus food allocation and recipient distributions</p>
+      </div>
+      <div>
+        <button class="btn btn-primary btn-sm" onclick="showSection('available', null)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Browse Available Food
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="dash-container">
+
+    <!-- DASHBOARD HOME -->
+    <div id="sec-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon bg-primary-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="value" style="color:var(--primary)">47</div>
+            <div class="label">Total Received</div>
+            <div class="change up">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+              5 this week
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon bg-info-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="value" style="color:var(--info)">8</div>
+            <div class="label">Available Now</div>
+            <div class="change">Nearby matches</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon bg-warning-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="value" style="color:var(--warning)">3</div>
+            <div class="label">Pending Requests</div>
+            <div class="change">Awaiting approval</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon bg-success-soft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="value" style="color:var(--success)">320</div>
+            <div class="label">Beneficiaries Served</div>
+            <div class="change up">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+              40 this month
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <!-- Available Food Table -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3 style="display:flex;align-items:center;gap:8px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+              </svg>
+              Available Food Near You
+            </h3>
+            <span style="font-size:.82rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              Ahmedabad
+            </span>
+          </div>
+          <div class="panel-body">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Food Item</th>
+                    <th>Qty</th>
+                    <th>Provider</th>
+                    <th>Distance</th>
+                    <th>Expiry</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="food-name">Dal Makhani + Rice</td>
+                    <td>15 kg</td>
+                    <td>Hotel Rajmahal</td>
+                    <td>2.3 km</td>
+                    <td style="color:var(--warning);">4 hrs left</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="requestFood('Dal Makhani + Rice')">Request</button></td>
+                  </tr>
+                  <tr>
+                    <td class="food-name">Veg Pulao</td>
+                    <td>10 kg</td>
+                    <td>Café Lotus</td>
+                    <td>1.1 km</td>
+                    <td style="color:var(--success);">6 hrs left</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="requestFood('Veg Pulao')">Request</button></td>
+                  </tr>
+                  <tr>
+                    <td class="food-name">Samosas (200 pcs)</td>
+                    <td>8 kg</td>
+                    <td>Street Bites</td>
+                    <td>3.5 km</td>
+                    <td style="color:var(--danger);">1.5 hrs left</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="requestFood('Samosas')">Request</button></td>
+                  </tr>
+                  <tr>
+                    <td class="food-name">Bread Loaves</td>
+                    <td>12 kg</td>
+                    <td>Modern Bakery</td>
+                    <td>4.2 km</td>
+                    <td style="color:var(--success);">Next day</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="requestFood('Bread Loaves')">Request</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications Panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3 style="display:flex;align-items:center;gap:8px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              Notifications
+            </h3>
+          </div>
+          <div class="panel-body">
+            <div class="notif-list">
+              <div class="notif-item unread">
+                <div class="notif-icon bg-primary-soft">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="notif-text">
+                  <div class="title">Request approved for Dal Makhani</div>
+                  <div class="time">5 min ago</div>
+                </div>
+              </div>
+              <div class="notif-item unread">
+                <div class="notif-icon bg-warning-soft">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" width="18" height="18"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                </div>
+                <div class="notif-text">
+                  <div class="title">Delivery arriving in 30 minutes</div>
+                  <div class="time">20 min ago</div>
+                </div>
+              </div>
+              <div class="notif-item">
+                <div class="notif-icon bg-info-soft">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="2" width="18" height="18"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                </div>
+                <div class="notif-text">
+                  <div class="title">New food available: 15kg Rice + Dal</div>
+                  <div class="time">1 hr ago</div>
+                </div>
+              </div>
+              <div class="notif-item">
+                <div class="notif-icon bg-success-soft">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" width="18" height="18"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                </div>
+                <div class="notif-text">
+                  <div class="title">Previous delivery confirmed</div>
+                  <div class="time">3 hrs ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Received Food Table -->
+      <div class="panel dash-full">
+        <div class="panel-header">
+          <h3 style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Recent Received Food
+          </h3>
+        </div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Food Item</th>
+                  <th>Qty</th>
+                  <th>Provider</th>
+                  <th>Volunteer</th>
+                  <th>Beneficiaries</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>01 Sep 2026</td>
+                  <td class="food-name">Veg Biryani</td>
+                  <td>20 kg</td>
+                  <td>Hotel Rajmahal</td>
+                  <td>Ravi Shah</td>
+                  <td>~80 people</td>
+                  <td><span class="badge badge-success"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg> Delivered</span></td>
+                </tr>
+                <tr>
+                  <td>31 Aug 2026</td>
+                  <td class="food-name">Khichdi</td>
+                  <td>30 kg</td>
+                  <td>Annapoorna Hotel</td>
+                  <td>Priya Patel</td>
+                  <td>~120 people</td>
+                  <td><span class="badge badge-success"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg> Delivered</span></td>
+                </tr>
+                <tr>
+                  <td>30 Aug 2026</td>
+                  <td class="food-name">Chapati + Sabji</td>
+                  <td>50 pcs</td>
+                  <td>Shreeji Caterers</td>
+                  <td>Mohit Rathod</td>
+                  <td>~50 people</td>
+                  <td><span class="badge badge-success"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg> Delivered</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AVAILABLE LISTINGS -->
+    <div id="sec-available" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h3 style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            Available Food Listings
+          </h3>
+        </div>
+        <div class="panel-body">
+          <p style="color:var(--text-muted);text-align:center;padding:40px;">All available food matched for your NGO profile will appear here with advanced filters.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY REQUESTS -->
+    <div id="sec-requests" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h3 style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            My Requests
+          </h3>
+        </div>
+        <div class="panel-body">
+          <p style="color:var(--text-muted);text-align:center;padding:40px;">Your pending, approved, and rejected requests will appear here.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- INCOMING DELIVERIES -->
+    <div id="sec-deliveries" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h3 style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            Incoming Deliveries
+          </h3>
+        </div>
+        <div class="panel-body">
+          <p style="color:var(--text-muted);text-align:center;padding:40px;">Track all incoming food deliveries with volunteer details and OTP verification.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECEIVED HISTORY -->
+    <div id="sec-history" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h3 style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Received History
+          </h3>
+        </div>
+        <div class="panel-body">
+          <p style="color:var(--text-muted);text-align:center;padding:40px;">Complete history of all received food donations.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NGO PROFILE -->
+    <div id="sec-profile" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h3 style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            NGO Profile
+          </h3>
+          <button class="btn btn-primary btn-sm" onclick="showToast('success', 'Profile Saved', 'NGO details updated successfully.')">Save Changes</button>
+        </div>
+        <div class="panel-body">
+          <div class="form-group"><label>Organization Name</label><input type="text" value="Ahmedabad Food Bank" /></div>
+          <div class="form-group">
+            <label>Receiver Type</label>
+            <select>
+              <option selected>NGO</option>
+              <option>Community Kitchen</option>
+              <option>Orphanage</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Capacity (kg/day)</label><input type="number" value="200" /></div>
+            <div class="form-group"><label>Contact</label><input type="text" value="9876543210" /></div>
+          </div>
+          <div class="form-group"><label>Food Requirements</label><textarea>Cooked meals, vegetarian preferred, no expired items</textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL NOTIFICATIONS -->
+    <div id="sec-notifications" class="hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <h3 style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            All Notifications
+          </h3>
+          <button class="btn btn-outline btn-sm" onclick="showToast('success','Done','All notifications marked as read.')">Mark All Read</button>
+        </div>
+        <div class="panel-body">
+          <div class="notif-list">
+            <div class="notif-item unread">
+              <div class="notif-icon bg-primary-soft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="notif-text">
+                <div class="title">Request approved for Dal Makhani</div>
+                <div class="time">5 min ago</div>
+              </div>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon bg-warning-soft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" width="18" height="18"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              </div>
+              <div class="notif-text">
+                <div class="title">Delivery arriving in 30 minutes – OTP: 4821</div>
+                <div class="time">20 min ago</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon bg-info-soft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="2" width="18" height="18"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+              </div>
+              <div class="notif-text">
+                <div class="title">New food available: 15kg Rice + Dal from Hotel Rajmahal</div>
+                <div class="time">1 hr ago</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon bg-success-soft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" width="18" height="18"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              </div>
+              <div class="notif-text">
+                <div class="title">Delivery of Veg Biryani (20kg) confirmed</div>
+                <div class="time">3 hrs ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="toast-container"></div>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script>
+    function showSection(name, linkEl) {
+      document.querySelectorAll("[id^='sec-']").forEach(s => s.classList.add("hidden"));
+      const el = document.getElementById("sec-" + name);
+      if (el) el.classList.remove("hidden");
+      if (linkEl) {
+        document.querySelectorAll(".header-nav .nav-item").forEach(a => a.classList.remove("active"));
+        linkEl.classList.add("active");
+      } else {
+        document.querySelectorAll(".header-nav .nav-item").forEach(a => {
+          if (a.getAttribute("onclick") && a.getAttribute("onclick").includes(`'${name}'`)) {
+            a.classList.add("active");
+          } else {
+            a.classList.remove("active");
+          }
+        });
+      }
+      const labels = {
+        dashboard: "NGO Dashboard", available: "Available Food",
+        requests: "My Requests", deliveries: "Incoming Deliveries",
+        history: "Received History", profile: "NGO Profile", notifications: "Notifications"
+      };
+      const titleEl = document.getElementById("pageTitle");
+      if (titleEl) titleEl.textContent = labels[name] || "Dashboard";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function requestFood(name) {
+      showToast("success", "Request Sent!", `Request for ${name} has been submitted. You will be notified when approved.`);
+    }
+  </script>
+</body>
+
+</html>
